@@ -45,8 +45,10 @@ async fn main() -> anyhow::Result<()> {
     let config = load_config(config_path)?;
 
     // Initialize PolicyEngine
+    // Note: The policy engine is initialized but not yet integrated into the HoneyTrap router.
+    // Future work: Connect PolicyEngine to Router for policy-based traffic decisions.
     let _policy_engine = PolicyEngine::new(honeytrap_policy::model::ActionType::Deception);
-    // TODO: Load policies from config.policies.files when policy config is added to Config struct
+    // TODO: Load policies from config.policies.files and integrate with Router
     tracing::info!("Policy engine initialized");
 
     // Initialize HoneyTrap system (includes AI-Client initialization)
