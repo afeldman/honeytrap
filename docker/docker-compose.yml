@@ -1,0 +1,131 @@
+version: "3.8"
+
+services:
+  # Production Server
+  honeytrap-server:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.server
+    container_name: honeytrap-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080" # Main server
+      - "2222:2222" # SSH honeypot
+      - "8081:8081" # HTTP honeypot
+      - "9090:9090" # Metrics
+    environment:
+      - RUST_LOG=info,honeytrap=debug
+      - HONEYTRAP_JSON_LOGS=true
+      - HONEYTRAP_CONFIG=/app/config/honeytrap.toml
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - ../config:/app/config:ro
+      - honeytrap-logs:/var/log/honeytrap
+      - honeytrap-data:/var/lib/honeytrap
+    networks:
+      - honeytrap-net
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "honeytrap-server"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # CLI für Ad-hoc Kommandos
+  honeytrap-cli:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.cli
+    container_name: honeytrap-cli
+    profiles:
+      - tools
+    volumes:
+      - ../config:/app/config:ro
+    networks:
+      - honeytrap-net
+    entrypoint: ["/app/honeytrap"]
+
+  # Development Server mit Hot-Reload
+  honeytrap-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    container_name: honeytrap-dev
+    profiles:
+      - dev
+    ports:
+      - "8080:8080"
+      - "2222:2222"
+    volumes:
+      - ..:/workspace:cached
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/workspace/target
+    environment:
+      - RUST_BACKTRACE=1
+      - RUST_LOG=debug,honeytrap=trace
+      - HONEYTRAP_CONFIG=/workspace/config/honeytrap.toml
+    networks:
+      - honeytrap-net
+    stdin_open: true
+    tty: true
+
+  # Prometheus für Metrics (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: honeytrap-prometheus
+    profiles:
+      - monitoring
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    networks:
+      - honeytrap-net
+
+  # Grafana für Visualisierung (optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: honeytrap-grafana
+    profiles:
+      - monitoring
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - honeytrap-net
+    depends_on:
+      - prometheus
+
+networks:
+  honeytrap-net:
+    driver: bridge
+
+volumes:
+  honeytrap-logs:
+  honeytrap-data:
+  cargo-cache:
+  target-cache:
+  prometheus-data:
+  grafana-data:

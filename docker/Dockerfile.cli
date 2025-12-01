@@ -1,0 +1,66 @@
+# Multi-stage build für HoneyTrap CLI
+# Für lokale Entwicklung und Testing
+
+FROM rust:1.75-alpine AS builder
+
+# Build-Dependencies
+RUN apk add --no-cache \
+    musl-dev \
+    openssl-dev \
+    pkgconfig
+
+WORKDIR /build
+
+# Dependencies cachen
+COPY Cargo.toml Cargo.lock ./
+COPY crates/honeytrap-core/Cargo.toml ./crates/honeytrap-core/
+COPY crates/honeytrap-ai/Cargo.toml ./crates/honeytrap-ai/
+COPY crates/honeytrap-deception/Cargo.toml ./crates/honeytrap-deception/
+COPY crates/honeytrap-protocol/Cargo.toml ./crates/honeytrap-protocol/
+COPY crates/honeytrap-cli/Cargo.toml ./crates/honeytrap-cli/
+
+# Dummy sources
+RUN mkdir -p crates/honeytrap-core/src \
+    crates/honeytrap-ai/src \
+    crates/honeytrap-deception/src \
+    crates/honeytrap-protocol/src \
+    crates/honeytrap-cli/src && \
+    echo "fn main() {}" > crates/honeytrap-cli/src/main.rs && \
+    echo "pub fn dummy() {}" > crates/honeytrap-core/src/lib.rs && \
+    echo "pub fn dummy() {}" > crates/honeytrap-ai/src/lib.rs && \
+    echo "pub fn dummy() {}" > crates/honeytrap-deception/src/lib.rs && \
+    echo "pub fn dummy() {}" > crates/honeytrap-protocol/src/lib.rs
+
+RUN cargo build --release --bin honeytrap
+
+# Echten Code kopieren
+COPY crates ./crates
+
+# Build
+RUN touch crates/*/src/**/*.rs && \
+    cargo build --release --bin honeytrap && \
+    strip target/release/honeytrap
+
+# Runtime image
+FROM alpine:latest
+
+LABEL maintainer="HoneyTrap Team"
+LABEL description="HoneyTrap CLI - Command-line interface"
+
+RUN apk add --no-cache ca-certificates libgcc
+
+RUN addgroup -g 1000 honeytrap && \
+    adduser -D -u 1000 -G honeytrap honeytrap
+
+WORKDIR /app
+
+COPY --from=builder /build/target/release/honeytrap /app/honeytrap
+
+RUN chown honeytrap:honeytrap /app/honeytrap
+
+USER honeytrap
+
+ENV RUST_LOG=info
+
+ENTRYPOINT ["/app/honeytrap"]
+CMD ["--help"]

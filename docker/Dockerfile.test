@@ -1,0 +1,26 @@
+# Test Runner Dockerfile
+# Für CI/CD und lokale Tests
+
+FROM rust:1.75
+
+# Test Dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    pkg-config \
+    libssl-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Test Tools
+RUN cargo install cargo-tarpaulin cargo-audit
+
+WORKDIR /app
+
+# Dependencies cachen
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+
+# Dependencies vorab bauen
+RUN cargo fetch
+
+# Test command
+CMD ["cargo", "test", "--all-features", "--workspace", "--", "--nocapture"]

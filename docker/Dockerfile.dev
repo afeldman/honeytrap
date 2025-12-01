@@ -1,0 +1,42 @@
+# Development Dockerfile mit Tools und Hot-Reload
+# Für lokale Entwicklung
+
+FROM rust:1.75
+
+# Development Tools
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    pkg-config \
+    libssl-dev \
+    curl \
+    git \
+    vim \
+    tmux \
+    htop \
+    gdb \
+    lldb \
+    && rm -rf /var/lib/apt/lists/*
+
+# Rust Tools installieren
+RUN rustup component add rustfmt clippy rust-analyzer && \
+    cargo install cargo-watch cargo-tarpaulin cargo-audit cargo-edit
+
+WORKDIR /workspace
+
+# User für Development
+ARG UID=1000
+ARG GID=1000
+RUN groupadd -g ${GID} developer && \
+    useradd -u ${UID} -g ${GID} -m -s /bin/bash developer
+
+# Ownership
+RUN chown -R developer:developer /workspace
+
+USER developer
+
+# Environment
+ENV RUST_BACKTRACE=1
+ENV RUST_LOG=debug,honeytrap=trace
+
+# Default command: cargo watch für auto-reload
+CMD ["cargo", "watch", "-x", "run --bin honeytrap-server"]

@@ -30,22 +30,28 @@ async fn main() -> Result<()> {
     // Logging initialisieren
     init_logging(&server_config);
 
-    info!("🍯 Starting HoneyTrap Server v{}", env!("CARGO_PKG_VERSION"));
+    info!(
+        "🍯 Starting HoneyTrap Server v{}",
+        env!("CARGO_PKG_VERSION")
+    );
 
     // Config laden
     let config = load_config(&server_config.config_path).await?;
-    info!("✅ Configuration loaded from {:?}", server_config.config_path);
+    info!(
+        "✅ Configuration loaded from {:?}",
+        server_config.config_path
+    );
 
     // HoneyTrap System initialisieren
-    let honeytrap = HoneyTrap::new(config).await.map_err(|e| {
-        anyhow::anyhow!("Failed to initialize HoneyTrap: {}", e)
-    })?;
+    let honeytrap = HoneyTrap::new(config)
+        .await
+        .map_err(|e| anyhow::anyhow!("Failed to initialize HoneyTrap: {}", e))?;
 
     info!("✅ HoneyTrap system initialized");
 
     // Signal Handler Setup
-    let signals = Signals::new([SIGTERM, SIGINT, SIGQUIT])
-        .context("Failed to register signal handlers")?;
+    let signals =
+        Signals::new([SIGTERM, SIGINT, SIGQUIT]).context("Failed to register signal handlers")?;
     let handle = signals.handle();
 
     // Server starten

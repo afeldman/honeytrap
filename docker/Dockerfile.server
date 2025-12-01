@@ -1,0 +1,93 @@
+# Multi-stage build für HoneyTrap Server
+# Optimiert für Production-Deployment
+
+FROM rust:1.75-alpine AS builder
+
+# Build-Dependencies
+RUN apk add --no-cache \
+    musl-dev \
+    openssl-dev \
+    pkgconfig \
+    make
+
+WORKDIR /build
+
+# Erst Dependencies cachen
+COPY Cargo.toml Cargo.lock ./
+COPY crates/honeytrap-core/Cargo.toml ./crates/honeytrap-core/
+COPY crates/honeytrap-ai/Cargo.toml ./crates/honeytrap-ai/
+COPY crates/honeytrap-deception/Cargo.toml ./crates/honeytrap-deception/
+COPY crates/honeytrap-protocol/Cargo.toml ./crates/honeytrap-protocol/
+COPY crates/honeytrap-server/Cargo.toml ./crates/honeytrap-server/
+
+# Dummy source files für dependency caching
+RUN mkdir -p crates/honeytrap-core/src \
+    crates/honeytrap-ai/src \
+    crates/honeytrap-deception/src \
+    crates/honeytrap-protocol/src \
+    crates/honeytrap-server/src && \
+    echo "fn main() {}" > crates/honeytrap-server/src/main.rs && \
+    echo "pub fn dummy() {}" > crates/honeytrap-core/src/lib.rs && \
+    echo "pub fn dummy() {}" > crates/honeytrap-ai/src/lib.rs && \
+    echo "pub fn dummy() {}" > crates/honeytrap-deception/src/lib.rs && \
+    echo "pub fn dummy() {}" > crates/honeytrap-protocol/src/lib.rs
+
+# Dependencies bauen
+RUN cargo build --release --bin honeytrap-server
+
+# Echten Source Code kopieren
+COPY crates ./crates
+
+# Touch files um rebuild zu forcen
+RUN touch crates/*/src/**/*.rs
+
+# Release build
+RUN cargo build --release --bin honeytrap-server && \
+    strip target/release/honeytrap-server
+
+# Runtime image - minimal
+FROM alpine:latest
+
+LABEL maintainer="HoneyTrap Team"
+LABEL description="HoneyTrap Server - AI-powered Zero Trust Network Access"
+LABEL version="0.1.0"
+
+# Runtime dependencies
+RUN apk add --no-cache \
+    ca-certificates \
+    libgcc \
+    tini
+
+# Non-root user
+RUN addgroup -g 1000 honeytrap && \
+    adduser -D -u 1000 -G honeytrap honeytrap
+
+WORKDIR /app
+
+# Binary kopieren
+COPY --from=builder /build/target/release/honeytrap-server /app/honeytrap-server
+
+# Directories erstellen
+RUN mkdir -p /app/config /var/log/honeytrap /var/lib/honeytrap && \
+    chown -R honeytrap:honeytrap /app /var/log/honeytrap /var/lib/honeytrap
+
+USER honeytrap
+
+# Volumes
+VOLUME ["/app/config", "/var/log/honeytrap", "/var/lib/honeytrap"]
+
+# Ports
+EXPOSE 8080 2222 8081 9090
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD pgrep -f honeytrap-server || exit 1
+
+# Environment defaults
+ENV RUST_LOG=info,honeytrap=debug
+ENV HONEYTRAP_CONFIG=/app/config/honeytrap.toml
+ENV HONEYTRAP_JSON_LOGS=true
+
+# Use tini for proper signal handling
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["/app/honeytrap-server"]

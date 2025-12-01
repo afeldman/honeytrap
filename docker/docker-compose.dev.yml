@@ -1,0 +1,72 @@
+# Development docker-compose
+# Für lokale Entwicklung mit allen Tools
+
+version: "3.8"
+
+services:
+  honeytrap-dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+      args:
+        UID: ${UID:-1000}
+        GID: ${GID:-1000}
+    container_name: honeytrap-dev
+    ports:
+      - "8080:8080"
+      - "2222:2222"
+      - "8081:8081"
+      - "9090:9090"
+    volumes:
+      - ..:/workspace:cached
+      - cargo-registry:/usr/local/cargo/registry
+      - cargo-git:/usr/local/cargo/git
+      - target:/workspace/target
+    environment:
+      - RUST_BACKTRACE=full
+      - RUST_LOG=trace
+      - HONEYTRAP_CONFIG=/workspace/config/honeytrap.toml
+      - CARGO_INCREMENTAL=1
+    working_dir: /workspace
+    command: cargo watch -x 'run --bin honeytrap-server'
+    stdin_open: true
+    tty: true
+    networks:
+      - dev-net
+
+  # Database für Testing (optional)
+  postgres:
+    image: postgres:15-alpine
+    container_name: honeytrap-postgres
+    environment:
+      - POSTGRES_DB=honeytrap
+      - POSTGRES_USER=honeytrap
+      - POSTGRES_PASSWORD=honeytrap
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - dev-net
+
+  # Redis für Session-Management (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: honeytrap-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - dev-net
+
+networks:
+  dev-net:
+    driver: bridge
+
+volumes:
+  cargo-registry:
+  cargo-git:
+  target:
+  postgres-data:
+  redis-data:

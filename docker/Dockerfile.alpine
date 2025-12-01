@@ -1,0 +1,36 @@
+# Ultra-minimales Alpine-Image
+# Kleinste Image-Größe für Production
+
+FROM rust:1.75-alpine AS builder
+
+RUN apk add --no-cache musl-dev openssl-dev
+
+WORKDIR /build
+
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+
+# Static linking für minimal runtime
+ENV RUSTFLAGS="-C target-feature=+crt-static"
+
+RUN cargo build --release --bin honeytrap-server && \
+    strip target/release/honeytrap-server
+
+# Scratch image für minimale Größe
+FROM alpine:latest
+
+RUN apk add --no-cache ca-certificates && \
+    addgroup -g 1000 honeytrap && \
+    adduser -D -u 1000 -G honeytrap honeytrap
+
+COPY --from=builder /build/target/release/honeytrap-server /honeytrap-server
+
+RUN chown honeytrap:honeytrap /honeytrap-server
+
+USER honeytrap
+
+EXPOSE 8080
+
+ENV HONEYTRAP_CONFIG=/config/honeytrap.toml
+
+ENTRYPOINT ["/honeytrap-server"]
