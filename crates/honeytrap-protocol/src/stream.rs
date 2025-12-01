@@ -1,10 +1,7 @@
 /// QUIC Stream Utilities
-///
 /// Helper functions for working with QUIC streams in honeypots
-
 #[cfg(feature = "quic")]
 use quinn::{RecvStream, SendStream};
-
 #[cfg(feature = "quic")]
 use std::io;
 
@@ -28,7 +25,7 @@ impl QuicStream {
         match self.recv.read(buf).await {
             Ok(Some(n)) => Ok(n),
             Ok(None) => Ok(0), // EOF
-            Err(e) => Err(io::Error::new(io::ErrorKind::Other, e)),
+            Err(e) => Err(io::Error::other(e)),
         }
     }
 
@@ -37,7 +34,7 @@ impl QuicStream {
         self.send
             .write(buf)
             .await
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
+            .map_err(io::Error::other)
     }
 
     /// Alle Bytes schreiben
@@ -45,7 +42,7 @@ impl QuicStream {
         self.send
             .write_all(buf)
             .await
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
+            .map_err(io::Error::other)
     }
 
     /// Flush
@@ -58,7 +55,7 @@ impl QuicStream {
     pub async fn finish(&mut self) -> io::Result<()> {
         self.send
             .finish()
-            .map_err(|e| io::Error::new(io::ErrorKind::Other, e))
+            .map_err(io::Error::other)
     }
 
     /// Send-Stream abrufen (für direkte Operationen)
@@ -114,10 +111,10 @@ impl QuicLineReader {
                         self.buffer.clear();
                         break;
                     } else {
-                        return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "EOF"));
+                        return Err(io::Error::other("unexpected EOF"));
                     }
                 }
-                Err(e) => return Err(io::Error::new(io::ErrorKind::Other, e)),
+                Err(e) => return Err(io::Error::other(e)),
             }
         }
 
@@ -144,9 +141,9 @@ impl QuicLineReader {
                 match self.stream.read(&mut buf[offset..]).await {
                     Ok(Some(n)) => offset += n,
                     Ok(None) => {
-                        return Err(io::Error::new(io::ErrorKind::UnexpectedEof, "EOF"))
+                        return Err(io::Error::other("unexpected EOF"))
                     }
-                    Err(e) => return Err(io::Error::new(io::ErrorKind::Other, e)),
+                    Err(e) => return Err(io::Error::other(e)),
                 }
             }
 
@@ -159,8 +156,6 @@ impl QuicLineReader {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn test_quic_stream_available() {
         // Test dass die Strukturen kompilieren

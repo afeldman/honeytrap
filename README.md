@@ -13,10 +13,11 @@ HoneyTrap is a Rust-based security system that uses **AI-powered anomaly detecti
 
 ## ✨ Features
 
-- **🤖 AI Anomaly Detection**: Machine Learning-based traffic analysis
+- **🤖 AI Anomaly Detection**: RandomForest ML model + heuristic analysis
 - **🧠 LLM Integration**: DeepSeek & OpenAI for intelligent behavior analysis
+- **🌲 RandomForest Model**: Supervised learning for accurate anomaly detection
 - **🍯 Multi-Protocol Honeypots**: SSH, HTTP, MySQL emulation
-- **🔐 Secure QUIC Transport**: Modern, encrypted networking
+- **🔐 Secure QUIC Transport**: Modern, encrypted networking with Quinn
 - **📊 Real-time Monitoring**: Session tracking and statistics
 - **🎯 Zero Trust Architecture**: Every connection is analyzed
 - **🐳 Container Ready**: Docker and Kubernetes support
@@ -163,6 +164,62 @@ interaction_level = "medium"
    provider = "deepseek"  # or "openai"
    ```
 
+## 🌲 Machine Learning
+
+HoneyTrap uses a **RandomForest classifier** for anomaly detection:
+
+### Training the Model
+
+```bash
+# Run training example
+cargo run --example train_model
+
+# Output:
+# 🌲 RandomForest Training Example
+# 📊 Generating training dataset...
+#    Generated 210 samples
+# 🧠 Training RandomForest model...
+# ✅ Training accuracy: 1.0000
+```
+
+### Using the Model
+
+```rust
+use honeytrap_ai::AnomalyDetector;
+
+let mut detector = AnomalyDetector::new(100);
+
+// Train with your data
+let training_data = vec![
+    (vec![443.0, 8443.0, 10.0, ...], false), // normal
+    (vec![12345.0, 8443.0, 0.5, ...], true), // anomaly
+];
+detector.train(training_data).await?;
+
+// Analyze traffic
+let (is_anomaly, score) = detector.analyze(&features).await?;
+```
+
+### Features
+
+The model uses 10 network features:
+
+- Source port, Destination port
+- Duration, Inter-packet time
+- Bytes sent/received
+- Packets sent/received
+- Failed logins, Command frequency
+
+### Model Persistence
+
+```bash
+# Save model
+detector.save_model("model.json").await?;
+
+# Load model
+detector.load_model("model.json").await?;
+```
+
 ## 📖 Documentation
 
 See `/Users/anton.feldmann/lynq/honeytrap/overview.md` for comprehensive documentation.
@@ -181,8 +238,8 @@ See `/Users/anton.feldmann/lynq/honeytrap/overview.md` for comprehensive documen
 
 **Phase 2: Advanced Features** 🚧
 
-- [ ] Full QUIC implementation with Quinn
-- [ ] RandomForest ML model
+- [x] Full QUIC implementation with Quinn
+- [x] RandomForest ML model
 - [ ] Advanced honeypot interactions
 - [ ] Metrics & monitoring
 - [ ] Dashboard

@@ -19,10 +19,19 @@ Thumbs.db
 *.log
 logs/
 
-# ML Models (large files)
+# ML Models & Training Data
 models/*.pkl
 models/*.bin
+models/*.json
+model.json
+*.h5
+*.onnx
+training_data/
 !models/.gitkeep
+
+# LLM Responses & Cache
+llm_cache/
+*.llm.log
 
 # Config with secrets
 honeytrap.toml

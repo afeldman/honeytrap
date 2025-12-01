@@ -1,7 +1,8 @@
 use crate::llm::{BehaviorAnalysis, LLMClient, SessionData};
+use crate::random_forest::RandomForestModel;
 use std::collections::VecDeque;
 
-/// Anomalie-Detektor mit Sliding Window + LLM
+/// Anomalie-Detektor mit RandomForest ML + LLM
 pub struct AnomalyDetector {
     window_size: usize,
     anomaly_threshold: f64,
@@ -9,7 +10,12 @@ pub struct AnomalyDetector {
     anomalies_count: u64,
     total_predictions: u64,
     llm_client: Option<LLMClient>,
-    // TODO: ML Model (RandomForest)
+    
+    /// RandomForest ML Model
+    ml_model: Option<RandomForestModel>,
+    
+    /// Verwende ML-Model für Predictions?
+    use_ml_model: bool,
 }
 
 impl AnomalyDetector {
@@ -22,6 +28,8 @@ impl AnomalyDetector {
             anomalies_count: 0,
             total_predictions: 0,
             llm_client: None,
+            ml_model: Some(RandomForestModel::new()),
+            use_ml_model: false, // Erst nach Training aktivieren
         }
     }
 
@@ -104,9 +112,26 @@ impl AnomalyDetector {
 
     /// Anomalie-Score berechnen
     async fn calculate_anomaly_score(&self, features: &[f64]) -> f64 {
-        // TODO: Echtes ML-Model
-        // Für jetzt: Simple heuristische Berechnung
+        // Wenn ML-Model trainiert ist, nutze es
+        if self.use_ml_model {
+            if let Some(ref model) = self.ml_model {
+                match model.predict(features) {
+                    Ok((prediction, probability)) => {
+                        // prediction: 0 = normal, 1 = anomaly
+                        if prediction == 1 {
+                            return probability;
+                        } else {
+                            return 1.0 - probability;
+                        }
+                    }
+                    Err(e) => {
+                        tracing::warn!("ML prediction failed: {}, falling back to heuristic", e);
+                    }
+                }
+            }
+        }
 
+        // Fallback: Heuristische Berechnung
         if self.samples.len() < 2 {
             return 0.0;
         }
@@ -135,28 +160,59 @@ impl AnomalyDetector {
         (distance / max_distance).min(1.0)
     }
 
-    /// Model trainieren (Placeholder)
+    /// Model trainieren
     pub async fn train(
         &mut self,
-        _training_data: Vec<(Vec<f64>, bool)>,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        tracing::info!("🧠 Training model...");
-        // TODO: RandomForest Training
-        tracing::info!("✅ Model trained");
-        Ok(())
+        training_data: Vec<(Vec<f64>, bool)>,
+    ) -> Result<f64, Box<dyn std::error::Error>> {
+        if training_data.is_empty() {
+            return Err("Training data is empty".into());
+        }
+
+        tracing::info!("🧠 Training RandomForest model with {} samples", training_data.len());
+
+        // Daten für smartcore vorbereiten
+        let mut x_train = Vec::new();
+        let mut y_train = Vec::new();
+
+        for (features, is_anomaly) in training_data {
+            x_train.push(features);
+            y_train.push(if is_anomaly { 1 } else { 0 });
+        }
+
+        // Model trainieren
+        let model = self.ml_model.as_mut()
+            .ok_or("ML model not initialized")?;
+        
+        let accuracy = model.train(x_train, y_train)?;
+        
+        self.use_ml_model = true;
+
+        tracing::info!("✅ Model trained with accuracy: {:.4}", accuracy);
+
+        Ok(accuracy)
     }
 
     /// Model speichern
-    pub async fn save_model(&self, _path: &str) -> Result<(), Box<dyn std::error::Error>> {
-        tracing::info!("💾 Saving model...");
-        // TODO: Serialize model
+    pub async fn save_model(&self, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+        tracing::info!("💾 Saving model to {}", path);
+        
+        if let Some(ref model) = self.ml_model {
+            model.save(path)?;
+        } else {
+            return Err("No model to save".into());
+        }
+        
         Ok(())
     }
 
     /// Model laden
-    pub async fn load_model(&mut self, _path: &str) -> Result<(), Box<dyn std::error::Error>> {
-        tracing::info!("📂 Loading model...");
-        // TODO: Deserialize model
+    pub async fn load_model(&mut self, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+        tracing::info!("📂 Loading model from {}", path);
+        
+        let loaded = RandomForestModel::load(path)?;
+        self.ml_model = Some(loaded);
+        
         Ok(())
     }
 
@@ -166,11 +222,29 @@ impl AnomalyDetector {
     }
 
     pub fn model_accuracy(&self) -> f64 {
-        if self.total_predictions == 0 {
-            return 0.0;
+        // Nutze echte Accuracy wenn ML-Model trainiert
+        if self.use_ml_model {
+            if let Some(ref model) = self.ml_model {
+                return model.accuracy();
+            }
         }
 
-        // Placeholder: Echte Accuracy kommt vom Model
-        0.85
+        // Fallback: Heuristic
+        0.0
+    }
+    
+    /// ML-Model Status
+    pub fn is_ml_trained(&self) -> bool {
+        self.use_ml_model
+    }
+    
+    /// Feature-Anzahl
+    pub fn feature_count(&self) -> usize {
+        if let Some(ref model) = self.ml_model {
+            if model.is_trained() {
+                return 10; // NetworkFeatures hat 10 Features
+            }
+        }
+        0
     }
 }
