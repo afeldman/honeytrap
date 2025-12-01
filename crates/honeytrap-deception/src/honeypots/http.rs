@@ -16,7 +16,7 @@ impl HttpHoneypot {
 impl Honeypot for HttpHoneypot {
     async fn handle(
         &self,
-        connection: Connection,
+        _connection: Connection,
         session: Session,
     ) -> Result<(), Box<dyn std::error::Error>> {
         tracing::info!("🌐 HTTP Honeypot: Handling connection {}", session.id);

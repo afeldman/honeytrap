@@ -1,4 +1,4 @@
-use crate::honeypots::{Honeypot, HoneypotType, SshHoneypot, HttpHoneypot, MysqlHoneypot, Connection, Session};
+use crate::honeypots::{Honeypot, HoneypotType, SshHoneypot, HttpHoneypot, MysqlHoneypot};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use tokio::sync::RwLock;
@@ -8,6 +8,12 @@ pub struct DeceptionSystem {
     honeypots: RwLock<HashMap<u16, Box<dyn Honeypot>>>,
     active_sessions: AtomicUsize,
     blocked_ips: RwLock<std::collections::HashSet<std::net::IpAddr>>,
+}
+
+impl Default for DeceptionSystem {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl DeceptionSystem {

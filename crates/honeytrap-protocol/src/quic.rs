@@ -3,7 +3,7 @@ use honeytrap_deception::Connection;
 
 /// Secure QUIC Transport
 pub struct SecureQuicTransport {
-    bind_addr: SocketAddr,
+    _bind_addr: SocketAddr,
     // TODO: Quinn Endpoint
 }
 
@@ -17,7 +17,7 @@ impl SecureQuicTransport {
         // let server_config = quinn::ServerConfig::with_crypto(...);
         // let endpoint = quinn::Endpoint::server(server_config, bind_addr)?;
         
-        Ok(Self { bind_addr })
+        Ok(Self { _bind_addr: bind_addr })
     }
     
     /// Connection akzeptieren
