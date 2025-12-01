@@ -14,6 +14,20 @@ pub struct Session {
     pub anomaly_score: f64,
 }
 
+impl From<Session> for honeytrap_deception::Session {
+    fn from(session: Session) -> Self {
+        Self {
+            id: session.id,
+            peer_addr: session.peer_addr,
+            started_at: session.started_at,
+            bytes_sent: session.bytes_sent,
+            bytes_received: session.bytes_received,
+            is_suspicious: session.is_suspicious,
+            anomaly_score: session.anomaly_score,
+        }
+    }
+}
+
 impl Session {
     /// Neue Session erstellen
     pub fn new(peer_addr: SocketAddr) -> Self {

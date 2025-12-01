@@ -107,7 +107,7 @@ impl Router {
         self.session_manager.mark_suspicious(&session.id, session.anomaly_score).await;
         
         // An Deception System übergeben
-        self.deception.handle_connection(connection, session).await?;
+        self.deception.handle_connection(connection, session.into()).await?;
         
         Ok(())
     }
