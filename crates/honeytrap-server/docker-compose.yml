@@ -1,0 +1,68 @@
+version: "3.8"
+
+services:
+  honeytrap-server:
+    build:
+      context: ../../..
+      dockerfile: crates/honeytrap-server/Dockerfile
+    container_name: honeytrap-server
+    restart: unless-stopped
+
+    # Ports
+    ports:
+      - "8080:8080" # Main server
+      - "2222:2222" # SSH honeypot
+      - "8081:8081" # HTTP honeypot
+      - "9090:9090" # Metrics
+
+    # Environment
+    environment:
+      - RUST_LOG=info,honeytrap=debug
+      - HONEYTRAP_JSON_LOGS=true
+      - HONEYTRAP_CONFIG=/app/config/honeytrap.toml
+      # Set your API key here or use .env file
+      # - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}
+
+    # Volumes
+    volumes:
+      - ./honeytrap.example.toml:/app/config/honeytrap.toml:ro
+      - honeytrap-logs:/var/log/honeytrap
+      - honeytrap-data:/var/lib/honeytrap
+
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "honeytrap-server"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+    # Security
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+
+    # Logging
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  honeytrap-logs:
+  honeytrap-data:

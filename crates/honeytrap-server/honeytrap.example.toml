@@ -1,0 +1,78 @@
+# HoneyTrap Server Configuration
+# Version: 0.1.0
+
+[network]
+# Bind address for the server
+bind_addr = "0.0.0.0:8080"
+
+# Backend servers to protect
+[[network.backends]]
+name = "api-server"
+address = "192.168.1.10:3000"
+weight = 100
+
+[[network.backends]]
+name = "web-server"
+address = "192.168.1.11:80"
+weight = 100
+
+[ai]
+# AI anomaly detection settings
+window_size = 100
+threshold = 0.75
+learning_rate = 0.01
+enable_online_learning = true
+
+[llm]
+# LLM-powered behavior analysis
+enabled = true
+provider = "deepseek"  # Options: deepseek, openai
+model = "deepseek-chat"
+api_key = "your-api-key-here"  # Set via environment: DEEPSEEK_API_KEY or OPENAI_API_KEY
+max_tokens = 1000
+temperature = 0.7
+
+[security]
+# Security policies
+max_connections = 10000
+rate_limit_per_ip = 100  # requests per minute
+block_duration = 3600    # seconds (1 hour)
+enable_ip_blocking = true
+
+[logging]
+# Logging configuration
+level = "info"
+format = "json"  # Options: json, text
+output = "stdout"  # Options: stdout, file
+file_path = "/var/log/honeytrap/server.log"
+
+# Honeypot configurations
+[[honeypots]]
+service_type = "ssh"
+port = 2222
+interaction_level = "medium"  # Options: low, medium, high
+enabled = true
+
+[[honeypots]]
+service_type = "http"
+port = 8081
+interaction_level = "high"
+enabled = true
+
+[[honeypots]]
+service_type = "mysql"
+port = 3307
+interaction_level = "low"
+enabled = false
+
+[monitoring]
+# Monitoring and metrics
+enable_metrics = true
+metrics_port = 9090
+health_check_interval = 30  # seconds
+
+[deception]
+# Deception tactics
+enable_fake_services = true
+randomize_responses = true
+honeypot_diversity = "high"  # Options: low, medium, high

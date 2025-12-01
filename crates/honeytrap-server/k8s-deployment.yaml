@@ -1,0 +1,258 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: honeytrap
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: honeytrap-config
+  namespace: honeytrap
+data:
+  honeytrap.toml: |
+    [network]
+    bind_addr = "0.0.0.0:8080"
+
+    [ai]
+    window_size = 100
+    threshold = 0.75
+    learning_rate = 0.01
+    enable_online_learning = true
+
+    [llm]
+    enabled = true
+    provider = "deepseek"
+    model = "deepseek-chat"
+    max_tokens = 1000
+    temperature = 0.7
+
+    [[honeypots]]
+    service_type = "ssh"
+    port = 2222
+    interaction_level = "medium"
+    enabled = true
+
+    [[honeypots]]
+    service_type = "http"
+    port = 8081
+    interaction_level = "high"
+    enabled = true
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: honeytrap-secrets
+  namespace: honeytrap
+type: Opaque
+stringData:
+  deepseek-api-key: "your-api-key-here"
+  # openai-api-key: "your-openai-key-here"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: honeytrap-server
+  namespace: honeytrap
+  labels:
+    app: honeytrap-server
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: honeytrap-server
+  template:
+    metadata:
+      labels:
+        app: honeytrap-server
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+
+      containers:
+        - name: honeytrap
+          image: honeytrap-server:latest
+          imagePullPolicy: Always
+
+          ports:
+            - name: server
+              containerPort: 8080
+              protocol: TCP
+            - name: ssh-honeypot
+              containerPort: 2222
+              protocol: TCP
+            - name: http-honeypot
+              containerPort: 8081
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+
+          env:
+            - name: RUST_LOG
+              value: "info,honeytrap=debug"
+            - name: HONEYTRAP_JSON_LOGS
+              value: "true"
+            - name: HONEYTRAP_CONFIG
+              value: "/app/config/honeytrap.toml"
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: honeytrap-secrets
+                  key: deepseek-api-key
+
+          volumeMounts:
+            - name: config
+              mountPath: /app/config
+              readOnly: true
+            - name: logs
+              mountPath: /var/log/honeytrap
+            - name: data
+              mountPath: /var/lib/honeytrap
+
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+
+          livenessProbe:
+            exec:
+              command:
+                - pgrep
+                - -f
+                - honeytrap-server
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            exec:
+              command:
+                - pgrep
+                - -f
+                - honeytrap-server
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+              add:
+                - NET_BIND_SERVICE
+
+      volumes:
+        - name: config
+          configMap:
+            name: honeytrap-config
+        - name: logs
+          emptyDir: {}
+        - name: data
+          persistentVolumeClaim:
+            claimName: honeytrap-data-pvc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: honeytrap-server
+  namespace: honeytrap
+  labels:
+    app: honeytrap-server
+spec:
+  type: LoadBalancer
+  selector:
+    app: honeytrap-server
+  ports:
+    - name: server
+      port: 8080
+      targetPort: 8080
+      protocol: TCP
+    - name: ssh-honeypot
+      port: 2222
+      targetPort: 2222
+      protocol: TCP
+    - name: http-honeypot
+      port: 8081
+      targetPort: 8081
+      protocol: TCP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: honeytrap-metrics
+  namespace: honeytrap
+  labels:
+    app: honeytrap-server
+spec:
+  type: ClusterIP
+  selector:
+    app: honeytrap-server
+  ports:
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+      protocol: TCP
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: honeytrap-data-pvc
+  namespace: honeytrap
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  storageClassName: standard
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: honeytrap-hpa
+  namespace: honeytrap
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: honeytrap-server
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
