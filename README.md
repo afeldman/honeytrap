@@ -109,6 +109,9 @@ honeytrap/
 │   ├── honeytrap-metrics/       # Prometheus metrics & monitoring
 │   ├── honeytrap-cli/           # Command-line interface
 │   └── honeytrap-server/        # Production server binary
+├── grafana/                     # Grafana dashboard templates
+├── web-ui/                      # React web dashboard
+├── mobile-app/                  # React Native mobile app
 ├── docker/                      # Docker configurations
 │   ├── Dockerfile.server        # Production server image
 │   ├── Dockerfile.cli           # CLI tool image
@@ -382,12 +385,75 @@ scrape_configs:
 
 ### Grafana Dashboard
 
-Import the provided Grafana dashboard template for visualization:
+Import the provided dashboard template from `grafana/honeytrap-dashboard.json`:
 
-- Connection analysis
-- Honeypot activity heatmaps
-- ML model performance
-- System resource usage
+```bash
+# Import in Grafana UI
+1. Go to Dashboards → Import
+2. Upload grafana/honeytrap-dashboard.json
+3. Select Prometheus data source
+```
+
+**Dashboard Panels:**
+
+- Connection analysis (rate, distribution)
+- Honeypot activity (sessions by type, credentials captured)
+- ML model performance (anomaly scores, RL actions, inference time)
+- System resource usage (CPU, memory)
+
+See `grafana/README.md` for detailed documentation.
+
+## 🌐 Web UI
+
+Modern React dashboard for desktop monitoring:
+
+### Quick Start
+
+```bash
+cd web-ui
+npm install
+npm run dev
+```
+
+Open http://localhost:3001
+
+**Features:**
+
+- Real-time dashboard with live metrics
+- Connection monitoring and classification
+- Honeypot session viewer
+- ML metrics visualization
+- Dark theme, responsive design
+
+**Tech Stack:** React 18, TypeScript, Vite, TailwindCSS, Recharts
+
+See `web-ui/README.md` for full documentation.
+
+## 📱 Mobile App
+
+React Native app for iOS and Android monitoring:
+
+### Quick Start
+
+```bash
+cd mobile-app
+npm install
+npm start
+
+# Scan QR code with Expo Go app
+```
+
+**Features:**
+
+- Real-time dashboard
+- Pull-to-refresh
+- Connection statistics
+- Session monitoring
+- System metrics
+
+**Platforms:** iOS 13+, Android 5+ (API 21+)
+
+See `mobile-app/README.md` for build & deployment instructions.
 
 ## 📖 Documentation
 
@@ -415,17 +481,19 @@ See `/Users/anton.feldmann/lynq/honeytrap/overview.md` for comprehensive documen
 - [x] Scripting engines (Python & Rhai)
 - [x] Intelligent response strategies
 - [x] Prometheus metrics & monitoring
-- [ ] Grafana dashboards
-- [ ] Web UI
+- [x] Grafana dashboards
+- [x] Web UI (React)
+- [x] Mobile App (React Native)
 
 **Phase 3: Production Ready** 🚧
 
-- [ ] Grafana dashboards (JSON templates)
-- [ ] Web UI for monitoring and configuration
+- [ ] REST API for UI integration
+- [ ] WebSocket for real-time updates
 - [ ] Alert manager integration
 - [ ] Enhanced structured logging
 - [ ] Performance optimization and benchmarks
 - [ ] Comprehensive documentation
+- [ ] Load testing and security audit
 
 ## 📝 License
 
