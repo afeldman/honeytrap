@@ -4,6 +4,7 @@ members = [
     "crates/honeytrap-ai",
     "crates/honeytrap-deception",
     "crates/honeytrap-protocol",
+    "crates/honeytrap-scripting",
     "crates/honeytrap-cli",
     "crates/honeytrap-server",
 ]

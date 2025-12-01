@@ -21,6 +21,14 @@ pyo3.workspace = true
 # Logging
 tracing.workspace = true
 
+[[example]]
+name = "rhai_scripting"
+path = "examples/rhai_scripting.rs"
+
+[[example]]
+name = "python_scripting"
+path = "examples/python_scripting.rs"
+
 [lib]
 name = "honeytrap_scripting"
 path = "src/lib.rs"

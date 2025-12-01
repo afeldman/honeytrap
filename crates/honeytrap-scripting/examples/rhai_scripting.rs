@@ -2,7 +2,7 @@
 ///
 /// Zeigt wie man Rhai für custom anomaly detection nutzt
 
-use honeytrap_ai::RhaiScriptEngine;
+use honeytrap_scripting::RhaiScriptEngine;
 use rhai::Dynamic;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {

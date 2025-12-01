@@ -1,6 +1,6 @@
-/// Python scripting engine for ML model interaction
+/// Python scripting engine for HoneyTrap
 ///
-/// Allows using Python for custom anomaly detection logic
+/// Allows using Python for custom detection and response logic
 
 use pyo3::prelude::*;
 use pyo3::types::{PyDict, PyList, PyTuple};

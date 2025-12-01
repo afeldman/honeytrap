@@ -1,6 +1,6 @@
-/// Scripting interfaces for ML model interaction
+/// Scripting interfaces for HoneyTrap
 ///
-/// Supports Python (PyO3) and Rhai scripting
+/// Supports Python (PyO3) and Rhai scripting for custom logic
 
 pub mod python;
 pub mod rhai_engine;

@@ -1,6 +1,6 @@
-/// Rhai scripting engine for ML model interaction
+/// Rhai scripting engine for HoneyTrap
 ///
-/// Allows dynamic scripting of anomaly detection logic
+/// Allows dynamic scripting of detection and response logic
 
 use rhai::{Dynamic, Engine, EvalAltResult, Scope};
 use serde_json::Value;

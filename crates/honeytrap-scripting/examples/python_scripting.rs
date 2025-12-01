@@ -2,7 +2,7 @@
 ///
 /// Zeigt wie man Python für custom anomaly detection nutzt
 
-use honeytrap_ai::PythonScriptEngine;
+use honeytrap_scripting::PythonScriptEngine;
 use serde_json::json;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
