@@ -34,10 +34,10 @@ clap = { version = "4.4", features = ["derive"] }
 # UUID
 uuid = { version = "1.6", features = ["v4", "serde"] }
 
-# QUIC (for future implementation)
-quinn = "0.10"
-rustls = "0.22"
-rcgen = "0.12"
+# QUIC (neueste Version)
+quinn = "0.11"
+rustls = "0.23"
+rcgen = "0.13"
 
 # ML (for future implementation)
 # ndarray = "0.15"

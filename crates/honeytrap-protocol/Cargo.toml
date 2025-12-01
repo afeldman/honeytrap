@@ -6,7 +6,7 @@ authors.workspace = true
 license.workspace = true
 
 [dependencies]
-honeytrap-deception = { path = "../honeytrap-deception" }
+honeytrap-deception = { path = "../honeytrap-deception", features = ["quic"] }
 
 tokio.workspace = true
 tracing.workspace = true
@@ -15,6 +15,21 @@ tracing.workspace = true
 quinn.workspace = true
 rustls.workspace = true
 rcgen.workspace = true
+
+[dev-dependencies]
+tracing-subscriber.workspace = true
+
+[features]
+default = ["quic"]
+quic = ["honeytrap-deception/quic"]
+
+[[example]]
+name = "quic_server"
+path = "examples/quic_server.rs"
+
+[[example]]
+name = "quic_client"
+path = "examples/quic_client.rs"
 
 [lib]
 name = "honeytrap_protocol"

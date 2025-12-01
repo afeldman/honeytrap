@@ -8,6 +8,7 @@ pub use ssh::SshHoneypot;
 
 use async_trait::async_trait;
 use std::fmt;
+use std::sync::Arc;
 
 /// Honeypot-Trait
 #[async_trait]
@@ -43,10 +44,84 @@ impl fmt::Display for HoneypotType {
     }
 }
 
-// Placeholder Connection Type
-#[derive(Debug)]
+/// Connection mit Quinn QUIC-Support
+#[derive(Debug, Clone)]
 pub struct Connection {
     pub peer_addr: std::net::SocketAddr,
+    /// Optional Quinn QUIC Connection
+    /// Wird nur gesetzt wenn QUIC verwendet wird
+    #[cfg(feature = "quic")]
+    pub quinn_connection: Option<Arc<quinn::Connection>>,
+    
+    #[cfg(not(feature = "quic"))]
+    pub quinn_connection: Option<Arc<()>>, // Placeholder wenn QUIC disabled
+}
+
+impl Connection {
+    /// Neue Connection ohne QUIC
+    pub fn new(peer_addr: std::net::SocketAddr) -> Self {
+        Self {
+            peer_addr,
+            quinn_connection: None,
+        }
+    }
+
+    /// Neue Connection mit Quinn QUIC
+    #[cfg(feature = "quic")]
+    pub fn with_quic(peer_addr: std::net::SocketAddr, quinn: Arc<quinn::Connection>) -> Self {
+        Self {
+            peer_addr,
+            quinn_connection: Some(quinn),
+        }
+    }
+
+    /// QUIC Bi-Stream öffnen
+    #[cfg(feature = "quic")]
+    pub async fn open_bi(&self) -> Result<(quinn::SendStream, quinn::RecvStream), Box<dyn std::error::Error>> {
+        if let Some(ref conn) = self.quinn_connection {
+            Ok(conn.open_bi().await?)
+        } else {
+            Err("No QUIC connection available".into())
+        }
+    }
+
+    /// QUIC Uni-Stream öffnen
+    #[cfg(feature = "quic")]
+    pub async fn open_uni(&self) -> Result<quinn::SendStream, Box<dyn std::error::Error>> {
+        if let Some(ref conn) = self.quinn_connection {
+            Ok(conn.open_uni().await?)
+        } else {
+            Err("No QUIC connection available".into())
+        }
+    }
+
+    /// QUIC Bi-Stream akzeptieren
+    #[cfg(feature = "quic")]
+    pub async fn accept_bi(&self) -> Result<(quinn::SendStream, quinn::RecvStream), Box<dyn std::error::Error>> {
+        if let Some(ref conn) = self.quinn_connection {
+            Ok(conn.accept_bi().await?)
+        } else {
+            Err("No QUIC connection available".into())
+        }
+    }
+
+    /// QUIC Uni-Stream akzeptieren
+    #[cfg(feature = "quic")]
+    pub async fn accept_uni(&self) -> Result<quinn::RecvStream, Box<dyn std::error::Error>> {
+        if let Some(ref conn) = self.quinn_connection {
+            Ok(conn.accept_uni().await?)
+        } else {
+            Err("No QUIC connection available".into())
+        }
+    }
+
+    /// Connection schließen
+    pub async fn close(&self) {
+        #[cfg(feature = "quic")]
+        if let Some(ref conn) = self.quinn_connection {
+            conn.close(0u32.into(), b"connection closed");
+        }
+    }
 }
 
 // Session structure matching honeytrap-core

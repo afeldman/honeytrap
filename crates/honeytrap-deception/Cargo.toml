@@ -10,6 +10,13 @@ tokio.workspace = true
 tracing.workspace = true
 async-trait.workspace = true
 
+# Optional QUIC support
+quinn = { workspace = true, optional = true }
+
+[features]
+default = ["quic"]
+quic = ["dep:quinn"]
+
 [lib]
 name = "honeytrap_deception"
 path = "src/lib.rs"
