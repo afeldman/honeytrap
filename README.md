@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/yourusername/honeytrap/workflows/CI/badge.svg)](https://github.com/yourusername/honeytrap/actions)
 [![Release](https://github.com/yourusername/honeytrap/workflows/Release/badge.svg)](https://github.com/yourusername/honeytrap/releases)
-[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Rust Version](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org)
 
 ## 🎯 Overview
@@ -189,7 +189,7 @@ See `/Users/anton.feldmann/lynq/honeytrap/overview.md` for comprehensive documen
 
 ## 📝 License
 
-MIT OR Apache-2.0
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 👥 Author
 
