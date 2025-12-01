@@ -16,7 +16,7 @@ impl SshHoneypot {
 impl Honeypot for SshHoneypot {
     async fn handle(
         &self,
-        connection: Connection,
+        _connection: Connection,
         session: Session,
     ) -> Result<(), Box<dyn std::error::Error>> {
         tracing::info!("🔐 SSH Honeypot: Handling connection {}", session.id);

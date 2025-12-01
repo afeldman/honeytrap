@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: { { include "honeytrap.fullname" . } }
+spec:
+  type: { { .Values.service.type } }
+  selector:
+    app: { { include "honeytrap.name" . } }
+  ports:
+    - name: honeytrap
+      port: { { .Values.service.port } }
+      targetPort: honeytrap

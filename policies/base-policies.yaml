@@ -1,0 +1,53 @@
+version: v1
+policies:
+  - name: allow_known_internal
+    description: "Erlaube vertrauenswürdige interne Services mit mTLS"
+    priority: 10
+    conditions:
+      any:
+        - mtls_verified: true
+          client_san_contains: "internal.service"
+          max_risk_score: 20
+    action:
+      type: ALLOW
+      log: true
+
+  - name: block_known_bad_ips
+    description: "Blockiere bekannte bösartige IPs"
+    priority: 20
+    conditions:
+      any:
+        - src_ip_in_cidr:
+            - "1.2.3.0/24"
+            - "203.0.113.0/24"
+    action:
+      type: BLOCK
+      log: true
+      reason: "Known bad network range"
+
+  - name: deception_default_unknown_ssh
+    description: "Unbekannte SSH-Clients → Deception SSH Honeypot"
+    priority: 50
+    conditions:
+      all:
+        - protocol: "ssh"
+        - min_risk_score: 0
+        - max_risk_score: 70
+    action:
+      type: DECEPTION
+      deception_profile: "ssh-basic"
+      log: true
+
+  - name: escalate_high_risk_any
+    description: "Alles mit hohem Risk Score in Deep Deception + Tarpit"
+    priority: 100
+    conditions:
+      all:
+        - min_risk_score: 70
+    action:
+      type: DECEPTION
+      deception_profile: "deep-sandbox"
+      tarpit:
+        enabled: true
+        max_delay_ms: 10000
+      log: true

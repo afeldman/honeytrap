@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "honeytrap.fullname" . }}
+  labels:
+    app: {{ include "honeytrap.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "honeytrap.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "honeytrap.name" . }}
+    spec:
+      containers:
+        - name: honeytrap
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - "--config=/etc/honeytrap/config.toml"
+          ports:
+            - name: honeytrap
+              containerPort: 8443
+            - name: metrics
+              containerPort: 9100
+          env:
+            - name: AI_PROVIDER
+              value: "{{ .Values.ai.provider }}"
+            - name: AI_MODEL
+              value: "{{ .Values.ai.model }}"
+            - name: AI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.ai.apiKeySecretName }}
+                  key:  {{ .Values.ai.apiKeySecretKey }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/honeytrap/config.toml
+              subPath: config.toml
+            - name: policies
+              mountPath: /etc/honeytrap/policies/base-policies.yaml
+              subPath: base-policies.yaml
+            - name: policies
+              mountPath: /etc/honeytrap/policies/high-risk.yaml
+              subPath: high-risk.yaml
+            {{- if .Values.tls.enabled }}
+            - name: tls
+              mountPath: /etc/honeytrap/tls
+            {{- end }}
+          resources:
+{{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "honeytrap.fullname" . }}-config
+        - name: policies
+          configMap:
+            name: {{ include "honeytrap.fullname" . }}-config
+        {{- if .Values.tls.enabled }}
+        - name: tls
+          secret:
+            secretName: {{ .Values.tls.secretName }}
+        {{- end }}

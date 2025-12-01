@@ -1,0 +1,77 @@
+[server]
+# Auf welchen Adressen/Ports HoneyTrap lauscht
+listen_addr = "0.0.0.0:8443"
+# Protokolle, die emuliert/weitergeleitet werden
+protocols = ["ssh", "http", "mysql"]
+# Max. parallele Sessions
+max_sessions = 10000
+
+[server.tls]
+enabled = true
+cert_path = "/etc/honeytrap/tls/tls.crt"
+key_path  = "/etc/honeytrap/tls/tls.key"
+
+[logging]
+# "info", "debug", "trace", "warn", "error"
+level = "info"
+json  = true
+
+[database]
+# z.B. Postgres
+url = "postgres://honeytrap:honeytrap@postgres:5432/honeytrap"
+
+[queue]
+# Optional – falls du Events asynchron rauswerfen willst
+enabled = false
+backend = "nats"            # "nats" | "redis" | "kafka"
+url     = "nats://nats:4222"
+
+[ai]
+# Welcher AI-Provider
+# "openai" | "deepseek" | "local"
+provider = "openai"
+
+# Base URL des Providers (für lokale Gateways wie LM Studio / Mammoth)
+base_url = "https://api.openai.com/v1"
+
+# Modellname
+model = "gpt-4.1-mini"
+
+# Timeout in ms
+timeout_ms = 3000
+
+# Pfad zum API-Key (wird z.B. über Secret/Env in Datei geschrieben)
+api_key_file = "/etc/honeytrap/ai/api_key"
+
+[ai.features]
+# wie viel Kontext wird pro Request geschickt
+max_prompt_chars = 4000
+
+[zero_trust]
+# Default-Entscheidung, wenn keine Policy matched (ALLOW|BLOCK|DECEPTION)
+default_action = "DECEPTION"
+
+# ob mTLS erforderlich ist
+require_mtls = false
+
+# Liste vertrauenswürdiger CAs für Client-Zertifikate
+trusted_ca_path = "/etc/honeytrap/tls/client-ca.crt"
+
+[zero_trust.identity]
+# Ob JWT Tokens geprüft werden sollen (z.B. für interne Services)
+jwt_enabled = false
+jwt_issuer  = ""
+jwt_audience = ""
+
+[observability]
+prometheus_bind = "0.0.0.0:9100"
+otel_enabled    = false
+otel_endpoint   = "http://otel-collector:4317"
+
+[policies]
+# Pfade zu Policy-Dateien (YAML oder TOML), die beim Start geladen werden
+files = [
+  "/etc/honeytrap/policies/base-policies.yaml",
+  "/etc/honeytrap/policies/high-risk.yaml"
+]
+reload_interval_secs = 60   # Policies zyklisch neu einlesen

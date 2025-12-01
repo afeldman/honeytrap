@@ -44,13 +44,18 @@ impl fmt::Display for HoneypotType {
 }
 
 // Placeholder Types
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Connection {
     pub peer_addr: std::net::SocketAddr,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Session {
     pub id: String,
     pub peer_addr: std::net::SocketAddr,
+    pub started_at: std::time::Instant,
+    pub bytes_sent: u64,
+    pub bytes_received: u64,
+    pub is_suspicious: bool,
+    pub anomaly_score: f64,
 }

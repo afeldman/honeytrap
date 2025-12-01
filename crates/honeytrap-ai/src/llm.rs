@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// LLM Provider Configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub enum LLMProvider {
     DeepSeek {
         api_key: String,
@@ -11,13 +11,8 @@ pub enum LLMProvider {
         api_key: String,
         model: String,
     },
+    #[default]
     Disabled,
-}
-
-impl Default for LLMProvider {
-    fn default() -> Self {
-        Self::Disabled
-    }
 }
 
 /// LLM Client für Verhaltensanalyse

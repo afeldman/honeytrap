@@ -16,7 +16,7 @@ impl MysqlHoneypot {
 impl Honeypot for MysqlHoneypot {
     async fn handle(
         &self,
-        connection: Connection,
+        _connection: Connection,
         session: Session,
     ) -> Result<(), Box<dyn std::error::Error>> {
         tracing::info!("🗄️ MySQL Honeypot: Handling connection {}", session.id);
