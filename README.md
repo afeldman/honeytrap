@@ -5,8 +5,8 @@
 
 🍯 **AI-Powered Zero Trust Network Access with Intelligent Deception**
 
-[![CI](https://github.com/yourusername/honeytrap/workflows/CI/badge.svg)](https://github.com/yourusername/honeytrap/actions)
-[![Release](https://github.com/yourusername/honeytrap/workflows/Release/badge.svg)](https://github.com/yourusername/honeytrap/releases)
+[![CI](https://github.com/afeldman/honeytrap/workflows/CI/badge.svg)](https://github.com/afeldman/honeytrap/actions)
+[![Release](https://github.com/afeldman/honeytrap/workflows/Release/badge.svg)](https://github.com/afeldman/honeytrap/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Rust Version](https://img.shields.io/badge/rust-1.75%2B-orange.svg)](https://www.rust-lang.org)
 
