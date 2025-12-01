@@ -1,6 +1,9 @@
-# HoneyTrap
+<div align="center">
+  <img src="docs/logo.png" alt="HoneyTrap Logo" width="200"/>
+  
+  # HoneyTrap
 
-🍯 **HoneyTrap** - AI-Powered Zero Trust Network Access with Intelligent Deception
+🍯 **AI-Powered Zero Trust Network Access with Intelligent Deception**
 
 [![CI](https://github.com/yourusername/honeytrap/workflows/CI/badge.svg)](https://github.com/yourusername/honeytrap/actions)
 [![Release](https://github.com/yourusername/honeytrap/workflows/Release/badge.svg)](https://github.com/yourusername/honeytrap/releases)
