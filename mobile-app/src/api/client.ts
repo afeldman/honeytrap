@@ -1,0 +1,86 @@
+import axios from "axios";
+
+// Change this to your HoneyTrap server URL
+const API_BASE_URL = "http://your-server:8443/api";
+const METRICS_BASE_URL = "http://your-server:9090";
+
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    timeout: 10000,
+});
+
+export interface ConnectionStats {
+    total: number;
+    active: number;
+    anomaly: number;
+    normal: number;
+    blocked: number;
+}
+
+export interface HoneypotSession {
+    id: string;
+    serviceType: "ssh" | "http" | "mysql";
+    startTime: string;
+    duration: number;
+    credentialsCaptured: number;
+    commandsExecuted: number;
+    maliciousCommands: number;
+    sourceIp: string;
+    status: "active" | "closed";
+}
+
+export interface MLMetrics {
+    totalPredictions: number;
+    randomforestPredictions: number;
+    rlAgentPredictions: number;
+    avgAnomalyScore: number;
+    avgInferenceTime: number;
+}
+
+export interface SystemMetrics {
+    uptime: number;
+    memoryUsage: number;
+    cpuUsage: number;
+    activeTasks: number;
+}
+
+export interface DashboardData {
+    connections: ConnectionStats;
+    honeypotSessions: HoneypotSession[];
+    mlMetrics: MLMetrics;
+    systemMetrics: SystemMetrics;
+}
+
+export const honeytrapApi = {
+    async getDashboardData(): Promise<DashboardData> {
+        const response = await api.get("/dashboard");
+        return response.data;
+    },
+
+    async getConnectionStats(): Promise<ConnectionStats> {
+        const response = await api.get("/stats/connections");
+        return response.data;
+    },
+
+    async getHoneypotSessions(limit = 50): Promise<HoneypotSession[]> {
+        const response = await api.get("/sessions", { params: { limit } });
+        return response.data;
+    },
+
+    async getMLMetrics(): Promise<MLMetrics> {
+        const response = await api.get("/stats/ml");
+        return response.data;
+    },
+
+    async getSystemMetrics(): Promise<SystemMetrics> {
+        const response = await api.get("/stats/system");
+        return response.data;
+    },
+
+    async healthCheck(): Promise<{ status: string }> {
+        const response = await axios.get(`${METRICS_BASE_URL}/health`);
+        return response.data;
+    },
+};
+
+export default api;
