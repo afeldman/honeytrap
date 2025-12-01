@@ -15,8 +15,12 @@ HoneyTrap is a Rust-based security system that uses **AI-powered anomaly detecti
 
 - **🤖 AI Anomaly Detection**: RandomForest ML model + heuristic analysis
 - **🧠 LLM Integration**: DeepSeek & OpenAI for intelligent behavior analysis
+- **🎓 Reinforcement Learning**: Q-Learning for adaptive defense strategies
 - **🌲 RandomForest Model**: Supervised learning for accurate anomaly detection
-- **🍯 Multi-Protocol Honeypots**: SSH, HTTP, MySQL emulation
+- **🍯 Advanced Honeypot Interactions**: Realistic SSH, HTTP, MySQL protocol emulation
+- **💻 Fake Shell Environment**: Command parsing, filesystem simulation, credential capture
+- **🎭 Intelligent Response Strategies**: Adaptive engagement based on attacker behavior
+- **📜 Dual Scripting Engines**: Python & Rhai for flexible customization
 - **🔐 Secure QUIC Transport**: Modern, encrypted networking with Quinn
 - **📊 Real-time Monitoring**: Session tracking and statistics
 - **🎯 Zero Trust Architecture**: Every connection is analyzed
@@ -98,9 +102,10 @@ kubectl apply -f crates/honeytrap-server/k8s-deployment.yaml
 honeytrap/
 ├── crates/
 │   ├── honeytrap-core/          # Core routing and session management
-│   ├── honeytrap-ai/            # AI anomaly detection + LLM
-│   ├── honeytrap-deception/     # Honeypot system
+│   ├── honeytrap-ai/            # AI: RandomForest, RL Agent, LLM integration
+│   ├── honeytrap-deception/     # Advanced honeypot interactions
 │   ├── honeytrap-protocol/      # QUIC transport layer
+│   ├── honeytrap-scripting/     # Python & Rhai scripting engines
 │   ├── honeytrap-cli/           # Command-line interface
 │   └── honeytrap-server/        # Production server binary
 ├── docker/                      # Docker configurations
@@ -164,9 +169,13 @@ interaction_level = "medium"
    provider = "deepseek"  # or "openai"
    ```
 
-## 🌲 Machine Learning
+## 🤖 AI & Machine Learning
 
-HoneyTrap uses a **RandomForest classifier** for anomaly detection:
+HoneyTrap integrates multiple AI/ML techniques:
+
+### 1. RandomForest Classifier
+
+Supervised learning for anomaly detection:
 
 ### Training the Model
 
@@ -220,6 +229,95 @@ detector.save_model("model.json").await?;
 detector.load_model("model.json").await?;
 ```
 
+### 2. Reinforcement Learning Agent
+
+Q-Learning for adaptive honeypot strategies:
+
+```bash
+# Train RL agent
+cargo run --package honeytrap-ai --example rl_training
+
+# Output:
+# 🤖 Reinforcement Learning Training Example
+# 🎯 Training for 1000 episodes...
+# ✅ Training completed!
+# 📈 Final Stats:
+#    Episodes trained: 1000
+#    States explored: 1000
+#    Avg Q-value: 1.71
+```
+
+**Actions**: Ignore, MinimalResponse, StandardEngagement, DeepEngagement, Block
+
+**Strategy**: Epsilon-greedy policy with adaptive engagement based on attacker sophistication
+
+### 3. LLM Integration
+
+DeepSeek/OpenAI for behavior analysis and intelligent decision-making
+
+## 🍯 Advanced Honeypot Interactions
+
+Realistic protocol emulation with intelligent engagement:
+
+### SSH Honeypot
+
+```bash
+# Run SSH interaction demo
+cargo run --package honeytrap-deception --example advanced_interactions
+```
+
+**Features:**
+
+- Fake shell with command parsing
+- Realistic Linux filesystem simulation
+- Credential capture and logging
+- Malicious command detection (wget, curl, rm -rf, etc.)
+- Command history tracking
+
+### HTTP Honeypot
+
+**Features:**
+
+- Fake web application (login, admin panel)
+- Attack detection (SQLi, XSS, directory traversal)
+- Credential capture from login forms
+- Configurable response strategies
+
+### MySQL Honeypot
+
+**Features:**
+
+- MySQL protocol handshake
+- Query parsing and response generation
+- SQL injection detection (UNION, SLEEP, etc.)
+- Database/table enumeration simulation
+
+### Response Strategies
+
+- **Minimal**: Quick responses, low engagement
+- **Standard**: Realistic responses
+- **Deep**: Maximum engagement, waste attacker time
+- **Adaptive**: Adjust based on attacker behavior
+
+## 📜 Scripting
+
+Extend HoneyTrap with Python or Rhai scripts:
+
+```bash
+# Rhai scripting
+cargo run --package honeytrap-scripting --example rhai_scripting
+
+# Python scripting
+cargo run --package honeytrap-scripting --example python_scripting
+```
+
+**Use Cases:**
+
+- Custom anomaly detection logic
+- Dynamic honeypot responses
+- Attack pattern analysis
+- Integration with external systems
+
 ## 📖 Documentation
 
 See `/Users/anton.feldmann/lynq/honeytrap/overview.md` for comprehensive documentation.
@@ -236,13 +334,25 @@ See `/Users/anton.feldmann/lynq/honeytrap/overview.md` for comprehensive documen
 - [x] Honeypot system (basic)
 - [x] QUIC transport (skeleton)
 
-**Phase 2: Advanced Features** 🚧
+**Phase 2: Advanced Features** ✅
 
 - [x] Full QUIC implementation with Quinn
 - [x] RandomForest ML model
-- [ ] Advanced honeypot interactions
+- [x] Reinforcement Learning (Q-Learning)
+- [x] Advanced honeypot interactions (SSH, HTTP, MySQL)
+- [x] Fake filesystem and command parsing
+- [x] Scripting engines (Python & Rhai)
+- [x] Intelligent response strategies
 - [ ] Metrics & monitoring
 - [ ] Dashboard
+
+**Phase 3: Production Ready** 🚧
+
+- [ ] Prometheus metrics integration
+- [ ] Grafana dashboards
+- [ ] Web UI for monitoring
+- [ ] Enhanced logging and alerting
+- [ ] Performance optimization
 
 ## 📝 License
 

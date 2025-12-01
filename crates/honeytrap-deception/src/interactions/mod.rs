@@ -10,8 +10,8 @@ pub mod fake_filesystem;
 pub mod response_generator;
 
 pub use ssh_interaction::SshInteractionHandler;
-pub use http_interaction::HttpInteractionHandler;
-pub use mysql_interaction::MysqlInteractionHandler;
+pub use http_interaction::{HttpInteractionHandler, HttpMethod, HttpRequest, HttpResponse, HttpStats};
+pub use mysql_interaction::{MysqlInteractionHandler, MysqlResponse, MysqlStats};
 pub use command_parser::{Command, CommandParser};
 pub use fake_filesystem::{FakeFilesystem, FileEntry, FileType};
 pub use response_generator::{ResponseGenerator, ResponseStrategy};
