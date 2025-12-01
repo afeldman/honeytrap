@@ -1,5 +1,19 @@
+/**
+ * @fileoverview Connections monitoring screen.
+ * Displays real-time connection monitoring and classification.
+ *
+ * @example
+ * // Tab: Connections (shield icon)
+ * // Placeholder screen - full implementation coming soon
+ */
+
 import { View, Text, StyleSheet } from "react-native";
 
+/**
+ * Connections monitoring screen component.
+ *
+ * @returns {JSX.Element} Connections screen
+ */
 export default function Connections() {
     return (
         <View style={styles.container}>

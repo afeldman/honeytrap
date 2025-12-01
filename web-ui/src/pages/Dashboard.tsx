@@ -1,3 +1,16 @@
+/**
+ * @fileoverview Main dashboard page with real-time metrics and visualizations.
+ * Displays connection statistics, honeypot sessions, and system metrics.
+ *
+ * @example
+ * // Dashboard updates every 5 seconds automatically
+ * // Displays:
+ * // - Connection stats (total, active, anomaly, CPU)
+ * // - Pie chart of connection distribution
+ * // - Bar chart of session types
+ * // - Recent sessions table
+ */
+
 import { useEffect, useState } from "react";
 import { honeytrapApi, DashboardData } from "@/api/client";
 import { Activity, Shield, Database, Cpu } from "lucide-react";
@@ -17,8 +30,18 @@ import {
     ResponsiveContainer,
 } from "recharts";
 
+/** Color palette for charts */
 const COLORS = ["#10b981", "#f59e0b", "#ef4444"];
 
+/**
+ * Dashboard page component with real-time metrics.
+ *
+ * @returns {JSX.Element} Dashboard with stats, charts, and recent sessions
+ *
+ * @example
+ * // Route configuration:
+ * <Route path="dashboard" element={<Dashboard />} />
+ */
 export default function Dashboard() {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);

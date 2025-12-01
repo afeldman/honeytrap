@@ -1,3 +1,17 @@
+/**
+ * @fileoverview Honeypot sessions viewer page.
+ * Displays detailed information about honeypot sessions.
+ *
+ * @example
+ * // Route: /sessions
+ * // Will show SSH, HTTP, MySQL sessions with details
+ */
+
+/**
+ * Sessions page component.
+ *
+ * @returns {JSX.Element} Sessions viewer page
+ */
 export default function Sessions() {
     return (
         <div>

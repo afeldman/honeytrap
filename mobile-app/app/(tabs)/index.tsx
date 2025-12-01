@@ -1,3 +1,17 @@
+/**
+ * @fileoverview Main dashboard screen for HoneyTrap mobile app.
+ * Displays real-time metrics, charts, and recent sessions with pull-to-refresh.
+ *
+ * @example
+ * // Dashboard features:
+ * // - Auto-refresh every 10 seconds
+ * // - Pull-to-refresh gesture
+ * // - 4 stat cards (Total, Active, Anomaly, CPU)
+ * // - Pie chart for connection distribution
+ * // - System metrics grid
+ * // - Recent sessions list
+ */
+
 import { useEffect, useState } from "react";
 import {
     View,
@@ -13,6 +27,17 @@ import { Dimensions } from "react-native";
 
 const screenWidth = Dimensions.get("window").width;
 
+/**
+ * Main dashboard screen component.
+ *
+ * @returns {JSX.Element} Dashboard with stats, charts, and sessions
+ *
+ * @example
+ * // Automatic updates:
+ * // - useEffect fetches data on mount
+ * // - setInterval refreshes every 10 seconds
+ * // - Pull-to-refresh triggers manual update
+ */
 export default function Dashboard() {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
@@ -171,12 +196,33 @@ export default function Dashboard() {
     );
 }
 
+/**
+ * Props for StatCard component.
+ *
+ * @interface StatCardProps
+ * @property {string} title - Card title (e.g., "Total Connections")
+ * @property {string | number} value - Displayed value
+ * @property {string} color - Border color (hex or named)
+ */
 interface StatCardProps {
     title: string;
     value: string | number;
     color: string;
 }
 
+/**
+ * Statistic card component with colored left border.
+ *
+ * @param {StatCardProps} props - Component props
+ * @returns {JSX.Element} Stat card with title and value
+ *
+ * @example
+ * <StatCard
+ *   title="Active Connections"
+ *   value={42}
+ *   color="#10b981"
+ * />
+ */
 function StatCard({ title, value, color }: StatCardProps) {
     return (
         <View style={[styles.statCard, { borderLeftColor: color }]}>

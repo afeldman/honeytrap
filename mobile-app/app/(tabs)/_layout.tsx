@@ -1,6 +1,23 @@
+/**
+ * @fileoverview Tab navigation layout for HoneyTrap mobile app.
+ * Defines bottom tab navigation with 4 screens: Dashboard, Connections, Sessions, ML.
+ *
+ * @example
+ * // Tabs automatically handle navigation between screens:
+ * // - Dashboard (index) - Main dashboard with stats
+ * // - Connections - Connection monitoring
+ * // - Sessions - Honeypot session viewer
+ * // - ML - Machine learning metrics
+ */
+
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 
+/**
+ * Tab navigation layout component.
+ *
+ * @returns {JSX.Element} Tab navigator with 4 screens
+ */
 export default function TabLayout() {
     return (
         <Tabs

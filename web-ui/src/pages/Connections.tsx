@@ -1,3 +1,17 @@
+/**
+ * @fileoverview Connections monitoring page.
+ * Displays real-time connection monitoring and classification.
+ *
+ * @example
+ * // Route: /connections
+ * // Placeholder component - full implementation coming soon
+ */
+
+/**
+ * Connections page component.
+ *
+ * @returns {JSX.Element} Connections monitoring page
+ */
 export default function Connections() {
     return (
         <div>

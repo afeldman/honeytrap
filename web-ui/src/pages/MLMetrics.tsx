@@ -1,3 +1,17 @@
+/**
+ * @fileoverview Machine Learning metrics page.
+ * Displays ML model performance, anomaly scores, and RL agent actions.
+ *
+ * @example
+ * // Route: /ml
+ * // Shows RandomForest, RL agent metrics, inference times
+ */
+
+/**
+ * ML Metrics page component.
+ *
+ * @returns {JSX.Element} ML metrics and performance page
+ */
 export default function MLMetrics() {
     return (
         <div>

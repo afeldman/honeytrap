@@ -1,6 +1,19 @@
+/**
+ * @fileoverview Main layout component with sidebar navigation.
+ * Provides consistent layout structure across all pages with responsive sidebar.
+ *
+ * @example
+ * // Layout is used in App.tsx as parent route:
+ * <Route path="/" element={<Layout />}>
+ *   <Route path="dashboard" element={<Dashboard />} />
+ *   <Route path="connections" element={<Connections />} />
+ * </Route>
+ */
+
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { Activity, Shield, Database, Brain } from "lucide-react";
 
+/** Navigation items configuration */
 const navigation = [
     { name: "Dashboard", href: "/dashboard", icon: Activity },
     { name: "Connections", href: "/connections", icon: Shield },
@@ -8,9 +21,17 @@ const navigation = [
     { name: "ML Metrics", href: "/ml", icon: Brain },
 ];
 
+/**
+ * Main layout component with fixed sidebar and content area.
+ *
+ * @returns {JSX.Element} Layout with sidebar navigation and outlet for child routes
+ *
+ * @example
+ * // Active navigation item is highlighted based on current route
+ * // Child components render in the <Outlet /> area
+ */
 export default function Layout() {
     const location = useLocation();
-
     return (
         <div className="min-h-screen bg-gray-900">
             {/* Sidebar */}

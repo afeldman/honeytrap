@@ -1,3 +1,26 @@
+/**
+ * @fileoverview HoneyTrap API client for React Native mobile app.
+ * Provides type-safe methods for fetching dashboard data, connection stats,
+ * honeypot sessions, ML metrics, and system information.
+ *
+ * @example
+ * import { honeytrapApi } from '../src/api/client';
+ *
+ * // Fetch dashboard data
+ * const data = await honeytrapApi.getDashboardData();
+ * console.log(`Total connections: ${data.connections.total}`);
+ *
+ * @example
+ * // Get connection stats only
+ * const stats = await honeytrapApi.getConnectionStats();
+ * console.log(`Active: ${stats.active}, Anomaly: ${stats.anomaly}`);
+ *
+ * @example
+ * // Health check
+ * const health = await honeytrapApi.healthCheck();
+ * console.log(`Status: ${health.status}`);
+ */
+
 import axios from "axios";
 
 // Change this to your HoneyTrap server URL
@@ -9,6 +32,25 @@ const api = axios.create({
     timeout: 10000,
 });
 
+/**
+ * Connection statistics aggregated across all connections.
+ *
+ * @interface ConnectionStats
+ * @property {number} total - Total number of connections received
+ * @property {number} active - Currently active connections
+ * @property {number} anomaly - Connections classified as anomalous
+ * @property {number} normal - Connections classified as normal
+ * @property {number} blocked - Connections that were blocked
+ *
+ * @example
+ * const stats: ConnectionStats = {
+ *   total: 150,
+ *   active: 12,
+ *   anomaly: 8,
+ *   normal: 140,
+ *   blocked: 2
+ * };
+ */
 export interface ConnectionStats {
     total: number;
     active: number;

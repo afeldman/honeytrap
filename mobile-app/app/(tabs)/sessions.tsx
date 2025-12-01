@@ -1,5 +1,19 @@
+/**
+ * @fileoverview Honeypot sessions viewer screen.
+ * Displays detailed information about SSH, HTTP, and MySQL sessions.
+ *
+ * @example
+ * // Tab: Sessions (server icon)
+ * // Will show session details with commands, credentials, duration
+ */
+
 import { View, Text, StyleSheet } from "react-native";
 
+/**
+ * Sessions viewer screen component.
+ *
+ * @returns {JSX.Element} Sessions screen
+ */
 export default function Sessions() {
     return (
         <View style={styles.container}>

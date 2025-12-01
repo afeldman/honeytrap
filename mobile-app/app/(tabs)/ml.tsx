@@ -1,4 +1,20 @@
-import { View, Text, StyleSheet } from "react-native";
+/**
+ * @fileoverview Machine Learning metrics screen.
+ * Displays ML model performance, anomaly scores, RL agent actions.
+ * 
+ * @example
+ * // Tab: ML Metrics (analytics icon)
+ * // Shows RandomForest accuracy, RL Q-values, inference times
+ */
+
+import { View, Text, StyleSheet } from 'react-native';
+
+/**
+ * ML Metrics screen component.
+ * 
+ * @returns {JSX.Element} ML metrics screen
+ */
+export default function MLMetrics() {
 
 export default function MLMetrics() {
     return (
