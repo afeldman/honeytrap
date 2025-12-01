@@ -43,6 +43,10 @@ rcgen = "0.13"
 smartcore = "0.3"
 ndarray = "0.16"
 
+# Scripting
+rhai = "1.20"
+pyo3 = { version = "0.22", features = ["auto-initialize"] }
+
 # HTTP Client for LLM APIs
 reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
 
