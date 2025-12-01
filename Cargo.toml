@@ -5,6 +5,7 @@ members = [
     "crates/honeytrap-deception",
     "crates/honeytrap-protocol",
     "crates/honeytrap-cli",
+    "crates/honeytrap-server",
 ]
 resolver = "2"
 
