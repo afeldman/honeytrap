@@ -1,10 +1,10 @@
 pub mod config;
-pub mod session;
 pub mod router;
+pub mod session;
 
 pub use config::Config;
-pub use session::{Session, SessionManager};
 pub use router::Router;
+pub use session::{Session, SessionManager};
 
 use honeytrap_ai::{AnomalyDetector, LLMClient, LLMProvider};
 use honeytrap_deception::DeceptionSystem;
@@ -16,16 +16,16 @@ use tokio::sync::RwLock;
 pub struct HoneyTrap {
     /// AI-Engine für Anomalie-Erkennung
     pub ai_engine: Arc<RwLock<AnomalyDetector>>,
-    
+
     /// Deception System (Honeypots)
     pub deception: Arc<DeceptionSystem>,
-    
+
     /// Secure Transport
     pub transport: Arc<SecureQuicTransport>,
-    
+
     /// Router für Traffic-Handling
     pub router: Arc<Router>,
-    
+
     /// Konfiguration
     pub config: Config,
 }
@@ -34,10 +34,10 @@ impl HoneyTrap {
     /// Neues HoneyTrap System initialisieren
     pub async fn new(config: Config) -> Result<Self, Box<dyn std::error::Error>> {
         tracing::info!("🍯 Initializing HoneyTrap v{}", env!("CARGO_PKG_VERSION"));
-        
+
         // AI Engine
         let mut detector = AnomalyDetector::new(config.ai.window_size);
-        
+
         // LLM Integration
         if config.llm.enabled {
             if let Some(api_key) = &config.llm.api_key {
@@ -51,27 +51,34 @@ impl HoneyTrap {
                         model: config.llm.model.clone(),
                     },
                     _ => {
-                        tracing::warn!("Unknown LLM provider: {}, using DeepSeek", config.llm.provider);
+                        tracing::warn!(
+                            "Unknown LLM provider: {}, using DeepSeek",
+                            config.llm.provider
+                        );
                         LLMProvider::DeepSeek {
                             api_key: api_key.clone(),
                             model: config.llm.model.clone(),
                         }
                     }
                 };
-                
+
                 let llm_client = LLMClient::new(provider);
                 detector = detector.with_llm(llm_client);
-                tracing::info!("🧠 LLM enabled: {} ({})", config.llm.provider, config.llm.model);
+                tracing::info!(
+                    "🧠 LLM enabled: {} ({})",
+                    config.llm.provider,
+                    config.llm.model
+                );
             } else {
                 tracing::warn!("LLM enabled but no API key provided");
             }
         }
-        
+
         let ai_engine = Arc::new(RwLock::new(detector));
-        
+
         // Deception System
         let deception = Arc::new(DeceptionSystem::new());
-        
+
         // Deploy configured honeypots
         for honeypot_config in &config.honeypots {
             let hp_config = honeytrap_deception::HoneypotConfig {
@@ -91,20 +98,15 @@ impl HoneyTrap {
             };
             deception.deploy_honeypot(hp_config).await?;
         }
-        
+
         // Transport
-        let transport = Arc::new(
-            SecureQuicTransport::new_server(config.network.bind_addr).await?
-        );
-        
+        let transport = Arc::new(SecureQuicTransport::new_server(config.network.bind_addr).await?);
+
         // Router
-        let router = Arc::new(Router::new(
-            ai_engine.clone(),
-            deception.clone(),
-        ));
-        
+        let router = Arc::new(Router::new(ai_engine.clone(), deception.clone()));
+
         tracing::info!("✅ HoneyTrap initialized successfully");
-        
+
         Ok(Self {
             ai_engine,
             deception,
@@ -113,17 +115,17 @@ impl HoneyTrap {
             config,
         })
     }
-    
+
     /// HoneyTrap starten
     pub async fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
         tracing::info!("🚀 Starting HoneyTrap on {}", self.config.network.bind_addr);
-        
+
         loop {
             // Eingehende Verbindung
             let (connection, peer_addr) = self.transport.accept().await?;
-            
+
             tracing::debug!("📥 New connection from {}", peer_addr);
-            
+
             // Router-Handler
             let router = self.router.clone();
             tokio::spawn(async move {
@@ -133,12 +135,12 @@ impl HoneyTrap {
             });
         }
     }
-    
+
     /// Statistiken abrufen
     pub async fn stats(&self) -> HoneyTrapStats {
         let ai = self.ai_engine.read().await;
         let deception = self.deception.generate_report().await;
-        
+
         HoneyTrapStats {
             total_connections: self.router.total_connections(),
             anomalies_detected: ai.anomalies_detected(),

@@ -4,4 +4,4 @@ pub mod llm;
 
 pub use anomaly_detector::AnomalyDetector;
 pub use features::NetworkFeatures;
-pub use llm::{LLMClient, LLMProvider, SessionData, BehaviorAnalysis};
+pub use llm::{BehaviorAnalysis, LLMClient, LLMProvider, SessionData};

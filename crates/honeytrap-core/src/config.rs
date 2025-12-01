@@ -41,7 +41,7 @@ pub struct SecurityConfig {
     pub max_failed_attempts: u32,
     pub block_duration: u64, // seconds
     pub enable_tarpit: bool,
-    pub tarpit_delay: u64,   // seconds
+    pub tarpit_delay: u64, // seconds
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -70,9 +70,7 @@ impl Default for Config {
                 bind_addr: "0.0.0.0:8443".parse().unwrap(),
                 enable_quic: true,
                 enable_nat_traversal: true,
-                stun_servers: vec![
-                    "stun:stun.l.google.com:19302".to_string(),
-                ],
+                stun_servers: vec!["stun:stun.l.google.com:19302".to_string()],
             },
             ai: AIConfig {
                 window_size: 100,

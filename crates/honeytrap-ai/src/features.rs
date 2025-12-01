@@ -7,17 +7,17 @@ pub struct NetworkFeatures {
     // Connection Info
     pub source_port: u16,
     pub destination_port: u16,
-    
+
     // Timing
     pub connection_duration: f64,
     pub inter_packet_time: f64,
-    
+
     // Traffic
     pub bytes_sent: f64,
     pub bytes_received: f64,
     pub packets_sent: f64,
     pub packets_received: f64,
-    
+
     // Behavioral
     pub failed_login_attempts: f64,
     pub command_frequency: f64,
@@ -39,7 +39,7 @@ impl NetworkFeatures {
             self.command_frequency,
         ]
     }
-    
+
     /// Feature-Namen
     pub fn feature_names() -> Vec<&'static str> {
         vec![
@@ -92,10 +92,10 @@ impl FeatureExtractor {
             inter_packet_time: 0.0, // TODO: Calculate
             bytes_sent: bytes_sent as f64,
             bytes_received: bytes_received as f64,
-            packets_sent: 0.0, // TODO: Count
-            packets_received: 0.0, // TODO: Count
+            packets_sent: 0.0,          // TODO: Count
+            packets_received: 0.0,      // TODO: Count
             failed_login_attempts: 0.0, // TODO: Track
-            command_frequency: 0.0, // TODO: Calculate
+            command_frequency: 0.0,     // TODO: Calculate
         }
     }
 }

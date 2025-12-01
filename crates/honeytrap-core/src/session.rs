@@ -27,21 +27,21 @@ impl Session {
             anomaly_score: 0.0,
         }
     }
-    
+
     /// Session-Dauer berechnen
     pub fn duration(&self) -> Duration {
         self.started_at.elapsed()
     }
-    
+
     /// Bytes hinzufügen
     pub fn add_bytes_sent(&mut self, bytes: u64) {
         self.bytes_sent += bytes;
     }
-    
+
     pub fn add_bytes_received(&mut self, bytes: u64) {
         self.bytes_received += bytes;
     }
-    
+
     /// Als verdächtig markieren
     pub fn mark_suspicious(&mut self, score: f64) {
         self.is_suspicious = true;
@@ -67,7 +67,7 @@ impl SessionManager {
     /// Neuer Session Manager
     pub fn new() -> (Self, mpsc::UnboundedReceiver<SessionEvent>) {
         let (tx, rx) = mpsc::unbounded_channel();
-        
+
         (
             Self {
                 sessions: tokio::sync::RwLock::new(std::collections::HashMap::new()),
@@ -76,51 +76,55 @@ impl SessionManager {
             rx,
         )
     }
-    
+
     /// Neue Session registrieren
     pub async fn register(&self, peer_addr: SocketAddr) -> Session {
         let session = Session::new(peer_addr);
-        
+
         let mut sessions = self.sessions.write().await;
         sessions.insert(session.id.clone(), session.clone());
-        
+
         let _ = self.event_tx.send(SessionEvent::Created(session.clone()));
-        
+
         session
     }
-    
+
     /// Session aktualisieren
     pub async fn update(&self, session: Session) {
         let mut sessions = self.sessions.write().await;
         sessions.insert(session.id.clone(), session.clone());
-        
+
         let _ = self.event_tx.send(SessionEvent::Updated(session));
     }
-    
+
     /// Session schließen
     pub async fn close(&self, session_id: &str) {
         let mut sessions = self.sessions.write().await;
         sessions.remove(session_id);
-        
-        let _ = self.event_tx.send(SessionEvent::Closed(session_id.to_string()));
+
+        let _ = self
+            .event_tx
+            .send(SessionEvent::Closed(session_id.to_string()));
     }
-    
+
     /// Session als verdächtig markieren
     pub async fn mark_suspicious(&self, session_id: &str, score: f64) {
         let mut sessions = self.sessions.write().await;
-        
+
         if let Some(session) = sessions.get_mut(session_id) {
             session.mark_suspicious(score);
-            let _ = self.event_tx.send(SessionEvent::Suspicious(session.clone()));
+            let _ = self
+                .event_tx
+                .send(SessionEvent::Suspicious(session.clone()));
         }
     }
-    
+
     /// Alle aktiven Sessions
     pub async fn active_sessions(&self) -> Vec<Session> {
         let sessions = self.sessions.read().await;
         sessions.values().cloned().collect()
     }
-    
+
     /// Anzahl aktiver Sessions
     pub async fn count(&self) -> usize {
         let sessions = self.sessions.read().await;

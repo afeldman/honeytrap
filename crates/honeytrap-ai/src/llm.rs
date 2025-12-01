@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// LLM Provider Configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub enum LLMProvider {
     DeepSeek {
         api_key: String,
@@ -11,13 +11,8 @@ pub enum LLMProvider {
         api_key: String,
         model: String,
     },
+    #[default]
     Disabled,
-}
-
-impl Default for LLMProvider {
-    fn default() -> Self {
-        Self::Disabled
-    }
 }
 
 /// LLM Client für Verhaltensanalyse
@@ -37,7 +32,7 @@ impl LLMClient {
                 .unwrap(),
         }
     }
-    
+
     /// Verhaltensanalyse via LLM
     pub async fn analyze_behavior(
         &self,
@@ -45,17 +40,16 @@ impl LLMClient {
     ) -> Result<BehaviorAnalysis, Box<dyn std::error::Error>> {
         match &self.provider {
             LLMProvider::DeepSeek { api_key, model } => {
-                self.analyze_with_deepseek(api_key, model, session_data).await
+                self.analyze_with_deepseek(api_key, model, session_data)
+                    .await
             }
             LLMProvider::OpenAI { api_key, model } => {
                 self.analyze_with_openai(api_key, model, session_data).await
             }
-            LLMProvider::Disabled => {
-                Ok(BehaviorAnalysis::default())
-            }
+            LLMProvider::Disabled => Ok(BehaviorAnalysis::default()),
         }
     }
-    
+
     /// DeepSeek API Call
     async fn analyze_with_deepseek(
         &self,
@@ -64,7 +58,7 @@ impl LLMClient {
         session_data: &SessionData,
     ) -> Result<BehaviorAnalysis, Box<dyn std::error::Error>> {
         let prompt = self.build_analysis_prompt(session_data);
-        
+
         let request = serde_json::json!({
             "model": model,
             "messages": [
@@ -80,27 +74,28 @@ impl LLMClient {
             "temperature": 0.3,
             "response_format": { "type": "json_object" }
         });
-        
+
         tracing::debug!("🤖 Calling DeepSeek API...");
-        
-        let response = self.client
+
+        let response = self
+            .client
             .post("https://api.deepseek.com/v1/chat/completions")
             .header("Authorization", format!("Bearer {}", api_key))
             .header("Content-Type", "application/json")
             .json(&request)
             .send()
             .await?;
-        
+
         if !response.status().is_success() {
             let error_text = response.text().await?;
             tracing::error!("DeepSeek API error: {}", error_text);
             return Ok(BehaviorAnalysis::default());
         }
-        
+
         let result: DeepSeekResponse = response.json().await?;
         self.parse_llm_response(&result.choices[0].message.content)
     }
-    
+
     /// OpenAI API Call
     async fn analyze_with_openai(
         &self,
@@ -109,7 +104,7 @@ impl LLMClient {
         session_data: &SessionData,
     ) -> Result<BehaviorAnalysis, Box<dyn std::error::Error>> {
         let prompt = self.build_analysis_prompt(session_data);
-        
+
         let request = serde_json::json!({
             "model": model,
             "messages": [
@@ -125,27 +120,28 @@ impl LLMClient {
             "temperature": 0.3,
             "response_format": { "type": "json_object" }
         });
-        
+
         tracing::debug!("🤖 Calling OpenAI API...");
-        
-        let response = self.client
+
+        let response = self
+            .client
             .post("https://api.openai.com/v1/chat/completions")
             .header("Authorization", format!("Bearer {}", api_key))
             .header("Content-Type", "application/json")
             .json(&request)
             .send()
             .await?;
-        
+
         if !response.status().is_success() {
             let error_text = response.text().await?;
             tracing::error!("OpenAI API error: {}", error_text);
             return Ok(BehaviorAnalysis::default());
         }
-        
+
         let result: OpenAIResponse = response.json().await?;
         self.parse_llm_response(&result.choices[0].message.content)
     }
-    
+
     /// Prompt für LLM erstellen
     fn build_analysis_prompt(&self, session_data: &SessionData) -> String {
         format!(
@@ -183,22 +179,35 @@ Provide analysis in JSON format:
             session_data.request_pattern,
         )
     }
-    
+
     /// LLM Response parsen
-    fn parse_llm_response(&self, content: &str) -> Result<BehaviorAnalysis, Box<dyn std::error::Error>> {
+    fn parse_llm_response(
+        &self,
+        content: &str,
+    ) -> Result<BehaviorAnalysis, Box<dyn std::error::Error>> {
         let parsed: serde_json::Value = serde_json::from_str(content)?;
-        
+
         Ok(BehaviorAnalysis {
-            threat_level: parsed["threat_level"].as_str().unwrap_or("unknown").to_string(),
+            threat_level: parsed["threat_level"]
+                .as_str()
+                .unwrap_or("unknown")
+                .to_string(),
             threat_score: parsed["threat_score"].as_f64().unwrap_or(0.0),
             is_malicious: parsed["is_malicious"].as_bool().unwrap_or(false),
             attack_type: parsed["attack_type"].as_str().unwrap_or("none").to_string(),
             confidence: parsed["confidence"].as_f64().unwrap_or(0.5),
             indicators: parsed["indicators"]
                 .as_array()
-                .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+                .map(|arr| {
+                    arr.iter()
+                        .filter_map(|v| v.as_str().map(String::from))
+                        .collect()
+                })
                 .unwrap_or_default(),
-            recommended_action: parsed["recommended_action"].as_str().unwrap_or("monitor").to_string(),
+            recommended_action: parsed["recommended_action"]
+                .as_str()
+                .unwrap_or("monitor")
+                .to_string(),
             reasoning: parsed["reasoning"].as_str().unwrap_or("").to_string(),
         })
     }
