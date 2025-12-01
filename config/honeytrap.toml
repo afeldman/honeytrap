@@ -1,0 +1,45 @@
+[network]
+bind_addr = "0.0.0.0:8443"
+enable_quic = true
+enable_nat_traversal = true
+stun_servers = [
+    "stun:stun.l.google.com:19302",
+    "stun:stun1.l.google.com:19302"
+]
+
+[ai]
+window_size = 100
+anomaly_threshold = 0.7
+model_path = "./models/honeytrap_rf.pkl"
+training_enabled = true
+auto_retrain_interval = 86400  # 24 hours
+
+[[honeypots]]
+port = 22
+service_type = "ssh"
+interaction_level = "medium"
+auto_deploy = true
+
+[[honeypots]]
+port = 80
+service_type = "http"
+interaction_level = "high"
+auto_deploy = true
+
+[[honeypots]]
+port = 3306
+service_type = "mysql"
+interaction_level = "low"
+auto_deploy = true
+
+[security]
+max_failed_attempts = 5
+block_duration = 3600
+enable_tarpit = true
+tarpit_delay = 300
+
+[llm]
+enabled = false
+provider = "deepseek"  # "deepseek" or "openai"
+# api_key = "sk-..."  # Set via environment variable HONEYTRAP_LLM_API_KEY
+model = "deepseek-chat"  # or "gpt-4o-mini" for OpenAI

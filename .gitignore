@@ -1,0 +1,77 @@
+# Rust
+/target/
+Cargo.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Build artifacts
+*.o
+*.so
+*.dylib
+*.dll
+*.a
+*.lib
+
+# Debug/Release
+debug/
+release/
+
+# Testing
+*.profraw
+*.profdata
+
+# Documentation
+/doc/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+
+# ML Models
+models/*.pkl
+models/*.joblib
+models/*.onnx
+
+# Certificates (if generated)
+*.pem
+*.key
+*.crt
+*.p12
+
+# Coverage
+coverage/
+*.gcda
+*.gcno
+*.gcov
+lcov.info
+tarpaulin-report.html
+
+# Backup files
+*.bak
+*.tmp
+*.old
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+.directory
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/

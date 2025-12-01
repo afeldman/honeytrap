@@ -1,0 +1,52 @@
+[workspace]
+members = [
+    "crates/honeytrap-core",
+    "crates/honeytrap-ai",
+    "crates/honeytrap-deception",
+    "crates/honeytrap-protocol",
+    "crates/honeytrap-cli",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["Anton Feldmann"]
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+# Async Runtime
+tokio = { version = "1.35", features = ["full"] }
+async-trait = "0.1"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+# UUID
+uuid = { version = "1.6", features = ["v4", "serde"] }
+
+# QUIC (for future implementation)
+quinn = "0.10"
+rustls = "0.22"
+rcgen = "0.12"
+
+# ML (for future implementation)
+# ndarray = "0.15"
+# smartcore = "0.3"
+
+# HTTP Client for LLM APIs
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

@@ -1,0 +1,21 @@
+[package]
+name = "honeytrap-protocol"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+honeytrap-deception = { path = "../honeytrap-deception" }
+
+tokio.workspace = true
+tracing.workspace = true
+
+# QUIC Dependencies
+quinn.workspace = true
+rustls.workspace = true
+rcgen.workspace = true
+
+[lib]
+name = "honeytrap_protocol"
+path = "src/lib.rs"

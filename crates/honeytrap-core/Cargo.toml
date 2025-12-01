@@ -1,0 +1,22 @@
+[package]
+name = "honeytrap-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+# Workspace Dependencies
+honeytrap-ai = { path = "../honeytrap-ai" }
+honeytrap-deception = { path = "../honeytrap-deception" }
+honeytrap-protocol = { path = "../honeytrap-protocol" }
+
+tokio.workspace = true
+tracing.workspace = true
+serde.workspace = true
+toml.workspace = true
+uuid.workspace = true
+
+[lib]
+name = "honeytrap_core"
+path = "src/lib.rs"
