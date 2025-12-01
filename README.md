@@ -106,6 +106,7 @@ honeytrap/
 │   ├── honeytrap-deception/     # Advanced honeypot interactions
 │   ├── honeytrap-protocol/      # QUIC transport layer
 │   ├── honeytrap-scripting/     # Python & Rhai scripting engines
+│   ├── honeytrap-metrics/       # Prometheus metrics & monitoring
 │   ├── honeytrap-cli/           # Command-line interface
 │   └── honeytrap-server/        # Production server binary
 ├── docker/                      # Docker configurations
@@ -318,6 +319,76 @@ cargo run --package honeytrap-scripting --example python_scripting
 - Attack pattern analysis
 - Integration with external systems
 
+## 📊 Metrics & Monitoring
+
+Prometheus metrics for comprehensive monitoring:
+
+### Quick Start
+
+```bash
+# Run metrics demo
+cargo run --package honeytrap-metrics --example metrics_demo
+
+# Access metrics
+curl http://localhost:9090/metrics
+
+# Health check
+curl http://localhost:9090/health
+```
+
+### Available Metrics
+
+**Connection Metrics:**
+
+- `honeytrap_connections_total` - Total connections received
+- `honeytrap_connections_active` - Currently active connections
+- `honeytrap_connections_by_result` - Connections by classification (normal/anomaly/blocked)
+- `honeytrap_connection_duration_seconds` - Connection duration histogram
+- `honeytrap_bytes_total` - Bytes transferred (sent/received)
+
+**Honeypot Metrics:**
+
+- `honeytrap_honeypot_sessions_total` - Total sessions by type (ssh/http/mysql)
+- `honeytrap_honeypot_sessions_active` - Active sessions by type
+- `honeytrap_credentials_captured_total` - Captured credentials count
+- `honeytrap_commands_executed_total` - Commands executed in honeypots
+- `honeytrap_malicious_commands_total` - Detected malicious commands
+- `honeytrap_honeypot_session_duration_seconds` - Session duration histogram
+
+**ML Metrics:**
+
+- `honeytrap_ml_predictions_total` - ML predictions by model and result
+- `honeytrap_ml_inference_duration_seconds` - Model inference time
+- `honeytrap_anomaly_scores` - Distribution of anomaly scores
+- `honeytrap_rl_actions_total` - RL agent actions taken
+- `honeytrap_rl_q_values` - RL agent Q-values
+
+**System Metrics:**
+
+- `honeytrap_uptime_seconds` - System uptime
+- `honeytrap_memory_bytes` - Memory usage
+- `honeytrap_cpu_usage_percent` - CPU usage
+- `honeytrap_active_tasks` - Active async tasks
+
+### Prometheus Configuration
+
+```yaml
+scrape_configs:
+  - job_name: "honeytrap"
+    static_configs:
+      - targets: ["localhost:9090"]
+    scrape_interval: 15s
+```
+
+### Grafana Dashboard
+
+Import the provided Grafana dashboard template for visualization:
+
+- Connection analysis
+- Honeypot activity heatmaps
+- ML model performance
+- System resource usage
+
 ## 📖 Documentation
 
 See `/Users/anton.feldmann/lynq/honeytrap/overview.md` for comprehensive documentation.
@@ -343,16 +414,18 @@ See `/Users/anton.feldmann/lynq/honeytrap/overview.md` for comprehensive documen
 - [x] Fake filesystem and command parsing
 - [x] Scripting engines (Python & Rhai)
 - [x] Intelligent response strategies
-- [ ] Metrics & monitoring
-- [ ] Dashboard
+- [x] Prometheus metrics & monitoring
+- [ ] Grafana dashboards
+- [ ] Web UI
 
 **Phase 3: Production Ready** 🚧
 
-- [ ] Prometheus metrics integration
-- [ ] Grafana dashboards
-- [ ] Web UI for monitoring
-- [ ] Enhanced logging and alerting
-- [ ] Performance optimization
+- [ ] Grafana dashboards (JSON templates)
+- [ ] Web UI for monitoring and configuration
+- [ ] Alert manager integration
+- [ ] Enhanced structured logging
+- [ ] Performance optimization and benchmarks
+- [ ] Comprehensive documentation
 
 ## 📝 License
 
