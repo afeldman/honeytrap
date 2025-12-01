@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  honeytrap-ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: honeytrap-ui:latest
+    container_name: honeytrap-ui
+    ports:
+      - "3001:80"
+    environment:
+      - NODE_ENV=production
+    networks:
+      - honeytrap-network
+    restart: unless-stopped
+    depends_on:
+      - honeytrap-server
+      - honeytrap-metrics
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost/health",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Placeholder for HoneyTrap server (adjust to your actual configuration)
+  honeytrap-server:
+    image: honeytrap-server:latest
+    container_name: honeytrap-server
+    ports:
+      - "8443:8443"
+    networks:
+      - honeytrap-network
+    restart: unless-stopped
+
+  # Placeholder for metrics exporter
+  honeytrap-metrics:
+    image: honeytrap-metrics:latest
+    container_name: honeytrap-metrics
+    ports:
+      - "9090:9090"
+    networks:
+      - honeytrap-network
+    restart: unless-stopped
+
+networks:
+  honeytrap-network:
+    driver: bridge

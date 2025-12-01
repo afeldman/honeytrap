@@ -417,6 +417,26 @@ npm run dev
 
 Open http://localhost:3001
 
+### Docker Deployment
+
+```bash
+cd web-ui
+
+# Build and run
+docker build -t honeytrap-ui:latest .
+docker run -d -p 80:80 honeytrap-ui:latest
+
+# Or use Docker Compose
+docker-compose up -d
+```
+
+**Docker Features:**
+
+- Multi-stage build (~25MB image)
+- Nginx with reverse proxy
+- Health checks and auto-restart
+- Production-ready configuration
+
 **Features:**
 
 - Real-time dashboard with live metrics
@@ -427,7 +447,7 @@ Open http://localhost:3001
 
 **Tech Stack:** React 18, TypeScript, Vite, TailwindCSS, Recharts
 
-See `web-ui/README.md` for full documentation.
+See `web-ui/README.md` and `web-ui/DOCKER.md` for full documentation.
 
 ## 📱 Mobile App
 

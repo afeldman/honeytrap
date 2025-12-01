@@ -31,6 +31,24 @@ npm run build
 npm run preview
 ```
 
+### Docker
+
+```bash
+# Build Docker image
+docker build -t honeytrap-ui:latest .
+
+# Run container
+docker run -d -p 3001:80 --name honeytrap-ui honeytrap-ui:latest
+
+# Using Docker Compose
+docker-compose up -d
+
+# View logs
+docker logs -f honeytrap-ui
+```
+
+See `DOCKER.md` for comprehensive Docker documentation.
+
 ## 📁 Project Structure
 
 ```
@@ -101,17 +119,34 @@ The UI connects to HoneyTrap's REST API:
 
 ## 🚢 Deployment
 
-### Docker
+### Docker (Recommended)
+
+Complete Docker setup with multi-stage build and nginx:
 
 ```bash
-# Build image
-docker build -t honeytrap-ui .
+# Quick start
+docker build -t honeytrap-ui:latest .
+docker run -d -p 80:80 honeytrap-ui:latest
 
-# Run container
-docker run -p 3001:80 honeytrap-ui
+# Production with Docker Compose
+docker-compose up -d
+
+# Scale with Docker Swarm
+docker service create --name honeytrap-ui --publish 80:80 --replicas 3 honeytrap-ui:latest
 ```
 
-### Nginx
+**Features:**
+
+- Multi-stage build (~25MB final image)
+- Nginx with reverse proxy to backend
+- Health checks included
+- Gzip compression
+- Security headers
+- Production-ready configuration
+
+See **DOCKER.md** for complete documentation.
+
+### Manual Nginx Setup
 
 ```nginx
 server {
