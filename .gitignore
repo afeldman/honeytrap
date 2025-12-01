@@ -1,5 +1,7 @@
 # Rust
 /target/
+**/*.rs.bk
+*.pdb
 Cargo.lock
 
 # IDE
@@ -8,70 +10,29 @@ Cargo.lock
 *.swp
 *.swo
 *~
+
+# OS
 .DS_Store
-
-# Build artifacts
-*.o
-*.so
-*.dylib
-*.dll
-*.a
-*.lib
-
-# Debug/Release
-debug/
-release/
-
-# Testing
-*.profraw
-*.profdata
-
-# Documentation
-/doc/
-
-# Environment
-.env
-.env.local
+Thumbs.db
 
 # Logs
 *.log
 logs/
 
-# ML Models
+# ML Models (large files)
 models/*.pkl
-models/*.joblib
-models/*.onnx
+models/*.bin
+!models/.gitkeep
 
-# Certificates (if generated)
-*.pem
-*.key
-*.crt
-*.p12
+# Config with secrets
+honeytrap.toml
+!honeytrap.example.toml
 
-# Coverage
-coverage/
-*.gcda
-*.gcno
-*.gcov
-lcov.info
-tarpaulin-report.html
+# Database
+*.db
+*.sqlite
 
-# Backup files
-*.bak
-*.tmp
-*.old
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-
-# Linux
-*~
-.directory
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-$RECYCLE.BIN/
+# Temporary
+tmp/
+temp/
+.cache/
