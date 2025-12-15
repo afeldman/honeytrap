@@ -14,6 +14,23 @@ pub struct Session {
     pub anomaly_score: f64,
 }
 
+/// Conversion from honeytrap_core::Session to honeytrap_deception::Session.
+///
+/// This implementation allows seamless conversion between the core Session type
+/// and the deception module's Session type, which have identical fields but are
+/// defined in different modules to maintain separation of concerns.
+///
+/// # Examples
+///
+/// ```no_run
+/// use honeytrap_core::Session;
+/// use std::net::SocketAddr;
+///
+/// let core_session = Session::new("127.0.0.1:1234".parse().unwrap());
+/// 
+/// // Automatic conversion using .into()
+/// let deception_session: honeytrap_deception::Session = core_session.into();
+/// ```
 impl From<Session> for honeytrap_deception::Session {
     fn from(session: Session) -> Self {
         Self {
